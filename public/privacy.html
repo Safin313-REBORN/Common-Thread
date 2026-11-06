@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102b62">
+  <title>Privacy and data handling · CommonThread</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="legal-page">
+  <header class="site-header"><a class="brand" href="/"><span class="brand-mark" aria-hidden="true">CT</span><span class="brand-wordmark">CommonThread<span class="brand-product">COMMUNITY FINANCE</span></span></a><a class="button button-outline" href="/">Back to workspace</a></header>
+  <main class="legal-document">
+    <p class="section-kicker">PRODUCT TRANSPARENCY</p>
+    <h1>Privacy and data handling</h1>
+    <p class="legal-lede">CommonThread is a local hackathon build with account sign-in and private workspace records. Starter requests and catalog records are illustrative.</p>
+    <section><h2>Information stored locally</h2><p>The app stores account email, display name, password hash, hashed session identifiers, workspace name and market, request text, planning caps, kit briefs, restrictions, generated plans, itemized orders, support tickets, and payment status in SQLite at <code>data/commonthread.sqlite</code>, unless the operator sets another database path. Passwords are stored as salted scrypt hashes. Session cookies are HTTP-only and expire after seven days.</p><p>Request and support text is scoped to the signed-in workspace. The interface discourages names, exact addresses, health details, passwords, and payment credentials in free-text fields. This is a hackathon build, not a complete production identity or privacy program. Operators with filesystem access can access the database.</p></section>
+    <section><h2>When Gemini is configured</h2><p>For planning, the server sends the selected request details, kit brief, USD reference budget, restrictions, and available catalog information to Google's Gemini Interactions API with <code>store: false</code>. The plan is stored locally. For assistant questions, the server sends the question, workspace name, selected market and currency, and aggregate request/order counts; it does not send account email, order lines, or support tickets. Assistant conversations are not stored by this application. Without a Gemini key, deterministic local planning and a small product-support knowledge base run without sending these prompts to Google.</p></section>
+    <section><h2>When PayPal sandbox is configured</h2><p>Item names, quantities, checkout currency, prices, and order references are sent to PayPal sandbox. Sandbox captures use test funds, not real money. Without PayPal credentials, saving a local record sends no payment request. The checkout currency may differ from the community's local currency.</p></section>
+    <section><h2>When social sign-in is configured</h2><p>Google or PayPal sign-in sends the provider an authentication request and returns a provider subject, display name, and verified email for account access. The server requests only OpenID, profile, and email scopes and does not retain provider access tokens. PayPal identity sign-in is separate from checkout and does not grant access to bank details, balances, or payment credentials. The shared judge account is public and contains only isolated sample data.</p></section>
+    <section><h2>Currency reference data</h2><p>For non-USD estimates, the server requests the latest available daily USD reference rate from Frankfurter and stores the rate and date with an order. A rate lookup includes the requested currency code but no account or request details. This is not PayPal's final conversion quote; PayPal may apply its own conversion and fees.</p></section>
+    <section><h2>Other services</h2><p>The interface loads the Manrope font from Google Fonts. It does not include analytics or advertising trackers. A support request is stored in SQLite and is not emailed automatically. Gemini, PayPal, Frankfurter, and Google Fonts process relevant network requests under their own terms and privacy notices.</p></section>
+    <section><h2>Scope</h2><p>This page describes the current prototype behavior and is not a production privacy program. Do not use this build for real aid requests, sensitive personal information, or live payments.</p><p class="legal-updated">Last updated: November 5, 2026</p></section>
+  </main>
+</body>
+</html>
