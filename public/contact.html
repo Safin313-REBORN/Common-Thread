@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102b63">
+    <title>Contact · CommonThread</title>
+    <meta name="description" content="Contact the CommonThread team or save a support request for your workspace.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/contact.js" defer></script>
+  </head>
+  <body class="contact-page">
+    <header class="contact-header"><a class="auth-brand" href="/"><span class="brand-mark">✳</span><span>CommonThread<small>COMMUNITY FINANCE</small></span></a><a class="button button-outline" href="/login.html">Sign in</a></header>
+    <main class="contact-shell">
+      <section class="contact-intro"><p class="section-kicker"><span>CONTACT</span></p><h1>Contact the CommonThread team.</h1><p>Describe the issue and what you expected to happen. Signed-in requests are saved to your workspace.</p>
+        <div class="contact-direct"><span class="contact-icon">↗</span><div><strong>Direct contact</strong><p id="contact-details">Send a note using the form. The site operator has not published direct contact details.</p></div></div>
+        <div class="contact-direct"><span class="contact-icon">◎</span><div><strong>Product support</strong><p>For payments, include the order reference only. Never send passwords, card numbers, exact recipient addresses, or sensitive personal information.</p></div></div>
+      </section>
+      <section class="contact-card">
+        <p class="section-kicker"><span>SUPPORT REQUEST</span></p><h2>How can we help?</h2><p>Your message is saved as a support ticket. This local build does not send email notifications.</p>
+        <form id="contact-form" novalidate>
+          <label class="account-field" id="contact-email-field">Reply email<input type="email" name="email" autocomplete="email" maxlength="254" required></label>
+          <label class="account-field">Topic<select name="category" required><option>Account</option><option>Payments</option><option>Community requests</option><option>Technical issue</option><option>Other</option></select></label>
+          <label class="account-field">Subject<input name="subject" maxlength="120" minlength="4" required></label>
+          <label class="account-field">Message<textarea name="message" rows="6" maxlength="3000" minlength="20" placeholder="Describe the issue and what you expected to happen." required></textarea><small>20 to 3,000 characters. Keep personal details out.</small></label>
+          <div class="form-error" id="contact-error" role="alert" hidden></div>
+          <div class="contact-success" id="contact-success" role="status" hidden></div>
+          <button class="button button-primary" type="submit">Save support request <span aria-hidden="true">→</span></button>
+        </form>
+        <a class="contact-back" href="/login.html" id="contact-back">Back to sign in</a>
+      </section>
+    </main>
+    <footer class="auth-footer contact-footer"><span>CommonThread</span><nav><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms</a></nav></footer>
+  </body>
+</html>
