@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102b63">
+    <title>Sign in · CommonThread</title>
+    <meta name="description" content="Sign in to your private CommonThread community procurement workspace.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/login.js" defer></script>
+  </head>
+  <body class="auth-page">
+    <a class="auth-brand" href="/login.html" aria-label="CommonThread home"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M7 10.5 16 5l9 5.5v11L16 27l-9-5.5z"/><path d="m7 10.5 9 5.4 9-5.4M16 16v11"/></svg></span><span>CommonThread<small>COMMUNITY FINANCE</small></span></a>
+    <main class="auth-shell">
+      <section class="auth-story">
+        <div class="auth-story-inner">
+          <h1>Good work needs<br><em>clear records.</em></h1>
+          <p>Keep requests, reviewed supply plans, and payment activity together in a private space built for your community.</p>
+          <div class="auth-proof"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg><div><strong>Private by workspace</strong><small>Your requests and payments stay with your team.</small></div></div>
+          <div class="auth-proof"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="m4 10 4 4 8-8"/></svg><div><strong>Human approval stays in charge</strong><small>Plans suggest. You review and decide.</small></div></div>
+          <div class="auth-story-mark" aria-hidden="true">C<span>+</span></div>
+        </div>
+      </section>
+      <section class="auth-card-wrap">
+        <div class="auth-card">
+          <div class="auth-card-head"><h2 id="auth-title">Sign in to continue.</h2><p id="auth-subtitle">Open your community procurement workspace.</p></div>
+          <div class="auth-providers" aria-label="Other sign-in options">
+            <button class="auth-provider" id="google-signin" type="button" data-provider="google" disabled aria-describedby="provider-help">
+              <svg class="provider-google" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M21.35 12.23c0-.72-.06-1.42-.18-2.09H12v3.95h5.24a4.48 4.48 0 0 1-1.95 2.94v2.42h3.16c1.85-1.7 2.9-4.2 2.9-7.22Z"/><path fill="#34A853" d="M12 21.5c2.65 0 4.87-.88 6.5-2.4l-3.16-2.42c-.88.6-2  .96-3.34.96-2.56 0-4.73-1.73-5.5-4.06H3.23v2.5A9.82 9.82 0 0 0 12 21.5Z"/><path fill="#FBBC05" d="M6.5 13.58a5.9 5.9 0 0 1 0-3.75v-2.5H3.23a9.8 9.8 0 0 0 0 8.75l3.27-2.5Z"/><path fill="#EA4335" d="M12 5.77c1.45 0 2.75.5 3.77 1.5l2.83-2.82A9.48 9.48 0 0 0 12 1.5a9.82 9.82 0 0 0-8.77 5.83l3.27 2.5c.77-2.33 2.94-4.06 5.5-4.06Z"/></svg>
+              <span>Continue with Google</span><small data-provider-state="google">Set up required</small>
+            </button>
+            <button class="auth-provider" id="paypal-signin" type="button" data-provider="paypal" disabled aria-describedby="provider-help">
+              <svg class="provider-paypal" viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 3.5h7.3c3.2 0 4.8 1.7 4.2 4.8-.6 3.3-2.8 5.1-6 5.1h-2.2l-.9 4.4H5.7z"/><path d="M5.6 7.2 3.5 20.5h4.2l.8-4.1h3.7c3.6 0 6.1-1.9 7.1-5.4"/></svg>
+              <span>Continue with PayPal</span><small data-provider-state="paypal">Set up required</small>
+            </button>
+          </div>
+          <p class="auth-provider-help" id="provider-help">New accounts can start with either provider. PayPal sign-in verifies identity only; payment connections stay separate.</p>
+          <div class="auth-divider" aria-hidden="true"><span>or use email</span></div>
+          <p class="form-error auth-feedback" id="auth-feedback" role="alert" hidden></p>
+          <form id="login-form" class="auth-form" novalidate>
+            <label class="account-field">Email address<input type="email" name="email" id="login-email" autocomplete="username" maxlength="254" value="demo@commonthread.test" required></label>
+            <label class="account-field">Password<input type="password" name="password" id="login-password" autocomplete="current-password" value="CommonThreadDemo2026!" required></label>
+            <div class="form-error" id="login-error" role="alert" hidden></div>
+            <button class="button button-primary auth-submit" type="submit"><span>Sign in</span><span aria-hidden="true">→</span></button>
+          </form>
+          <aside class="auth-demo" id="demo-access" aria-label="Shared read-only demo account">
+            <div class="auth-demo-heading"><strong>Judge demo access</strong><span>Read-only workspace</span></div>
+            <p>Explore the sample requests and build a plan. Saving changes and orders is disabled.</p>
+            <dl>
+              <div><dt>Demo ID</dt><dd id="demo-email">demo@commonthread.test</dd></div>
+              <div><dt>Password</dt><dd id="demo-password">CommonThreadDemo2026!</dd></div>
+            </dl>
+            <button class="auth-demo-action" id="demo-login" type="button">Enter demo workspace <span aria-hidden="true">→</span></button>
+          </aside>
+          <form id="signup-form" class="auth-form" hidden novalidate>
+            <label class="account-field">Your name<input type="text" name="displayName" autocomplete="name" minlength="2" maxlength="80" required></label>
+            <label class="account-field">Community or organization<input type="text" name="workspaceName" minlength="2" maxlength="80" required></label>
+            <label class="account-field">Email address<input type="email" name="email" autocomplete="email" maxlength="254" required></label>
+            <label class="account-field">Password<input type="password" name="password" autocomplete="new-password" minlength="12" maxlength="128" required><small>At least 12 characters.</small></label>
+            <label class="account-field">Community country<select name="countryCode" id="signup-country" required></select></label>
+            <label class="account-field">PayPal checkout currency<select name="currencyCode" id="signup-currency" required></select></label>
+            <p class="auth-market-note" id="signup-market-note">Country availability and receiving options depend on the PayPal account.</p>
+            <div class="form-error" id="signup-error" role="alert" hidden></div>
+            <button class="button button-primary auth-submit" type="submit"><span>Create workspace</span><span aria-hidden="true">→</span></button>
+          </form>
+          <p class="auth-switch" id="auth-switch">New to CommonThread? <button id="show-signup" type="button">Create an account</button></p>
+          <p class="auth-legal">Read the <a href="/terms.html">Terms</a> and <a href="/privacy.html">Privacy notice</a>. <a href="/contact.html">Contact support</a>.</p>
+        </div>
+        <footer class="auth-footer"><span>CommonThread</span><span>Community finance, with a clear trail.</span></footer>
+      </section>
+    </main>
+  </body>
+</html>
