@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">CommonThread community finance workspace</title>
+  <desc id="desc">A reviewed request, catalog priced plan, and traceable payment record.</desc>
+  <defs>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0b2250"/><stop offset=".56" stop-color="#164ea4"/><stop offset="1" stop-color="#087f91"/></linearGradient>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1c66e8"/><stop offset="1" stop-color="#078b9a"/></linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="#f2f6fa"/>
+  <rect x="36" y="36" width="1128" height="558" rx="30" fill="url(#brand)"/>
+  <circle cx="1075" cy="90" r="185" fill="#31c5d4" opacity=".08"/>
+  <rect x="88" y="82" width="52" height="52" rx="15" fill="url(#mark)"/>
+  <g fill="none" stroke="#fff" stroke-width="2.7" stroke-linecap="round"><path d="M100 98h10l8 10h10M100 118h10l8-10h10"/><circle cx="100" cy="98" r="1.8"/><circle cx="128" cy="98" r="1.8"/><circle cx="100" cy="118" r="1.8"/><circle cx="128" cy="118" r="1.8"/></g>
+  <text x="155" y="105" font-family="Manrope,Arial,sans-serif" font-size="22" font-weight="800" fill="#fff">CommonThread</text>
+  <text x="156" y="127" font-family="Manrope,Arial,sans-serif" font-size="10" font-weight="700" letter-spacing="2.2" fill="#b7d7f5">COMMUNITY FINANCE</text>
+  <text x="88" y="207" font-family="Manrope,Arial,sans-serif" font-size="12" font-weight="800" letter-spacing="2.4" fill="#ddf36b">COMMUNITY PROCUREMENT WORKSPACE</text>
+  <text x="88" y="294" font-family="Manrope,Arial,sans-serif" font-size="61" font-weight="800" letter-spacing="-2.5" fill="#fff">Community procurement,</text>
+  <text x="88" y="364" font-family="Manrope,Arial,sans-serif" font-size="61" font-weight="800" letter-spacing="-2.5" fill="#fff">clearly recorded.</text>
+  <text x="91" y="420" font-family="Manrope,Arial,sans-serif" font-size="20" font-weight="500" fill="#d3e6fb">Review requests. Enforce budgets. Track every order.</text>
+  <text x="91" y="481" font-family="Manrope,Arial,sans-serif" font-size="15" font-weight="600" fill="#b9d1e8">AI recommends · server validates · a buyer approves</text>
+  <rect x="790" y="166" width="316" height="306" rx="20" fill="#061c3c" fill-opacity=".48" stroke="#d9ecff" stroke-opacity=".24"/>
+  <text x="819" y="202" font-family="Manrope,Arial,sans-serif" font-size="11" font-weight="800" letter-spacing="1.8" fill="#cce2f7">SPEND CONTROLS</text>
+  <circle cx="1065" cy="198" r="4" fill="#60e0ae"/>
+  <g font-family="Manrope,Arial,sans-serif">
+    <path d="M819 223h258M819 281h258M819 339h258M819 397h258" stroke="#d9ecff" stroke-opacity=".14"/>
+    <text x="820" y="252" font-size="10" font-weight="800" fill="#85b8f3">01</text><text x="853" y="250" font-size="14" font-weight="700" fill="#fff">Request review</text><text x="853" y="267" font-size="10" fill="#bcd2e8">Organizer marks it ready</text>
+    <text x="820" y="310" font-size="10" font-weight="800" fill="#85b8f3">02</text><text x="853" y="308" font-size="14" font-weight="700" fill="#fff">Catalog pricing</text><text x="853" y="325" font-size="10" fill="#bcd2e8">Server calculates totals</text>
+    <text x="820" y="368" font-size="10" font-weight="800" fill="#85b8f3">03</text><text x="853" y="366" font-size="14" font-weight="700" fill="#fff">Payment approval</text><text x="853" y="383" font-size="10" fill="#bcd2e8">PayPal buyer confirms</text>
+    <text x="820" y="426" font-size="10" font-weight="800" fill="#85b8f3">04</text><text x="853" y="424" font-size="14" font-weight="700" fill="#fff">Activity record</text><text x="853" y="441" font-size="10" fill="#bcd2e8">Order details stay together</text>
+  </g>
+  <rect x="88" y="517" width="1024" height="1" fill="#e7f2fc" fill-opacity=".22"/>
+  <text x="90" y="550" font-family="Manrope,Arial,sans-serif" font-size="12" font-weight="600" fill="#a9c7e4">PayPal sandbox · itemized records · no-charge local mode</text>
+</svg>
