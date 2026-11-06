@@ -309,7 +309,7 @@ async function capturePayPalOrder(appOrderId, workspaceId) {
 async function routeApi(req, res, url) {
   const pathname = url.pathname;
   if (req.method === "GET" && pathname === "/api/health") {
-    json(res, 200, { status: "ok", database: "sqlite", aiMode: process.env.GEMINI_API_KEY ? "gemini" : "guided-help", paymentMode: paypal.isConfigured() ? "paypal-sandbox" : "local-demo" });
+    json(res, 200, { status: "ok", database: database.databaseType, aiMode: process.env.GEMINI_API_KEY ? "gemini" : "guided-help", paymentMode: paypal.isConfigured() ? "paypal-sandbox" : "local-demo" });
     return;
   }
   if (req.method === "GET" && pathname === "/api/markets") {
@@ -729,7 +729,7 @@ async function prepareDemoWorkspace() {
 
 prepareDemoWorkspace().then(() => {
   server.listen(port, host, () => {
-    console.log(`CommonThread running at http://${host}:${port} (${paypal.isConfigured() ? "PayPal sandbox" : "local no-charge records"}; SQLite)`);
+    console.log(`CommonThread running at http://${host}:${port} (${paypal.isConfigured() ? "PayPal sandbox" : "local no-charge records"}; ${database.databaseType})`);
   });
 }).catch((error) => {
   console.error(`CommonThread could not start: ${cleanText(error.message, 180)}`);

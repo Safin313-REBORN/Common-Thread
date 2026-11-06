@@ -1017,6 +1017,7 @@ function closeDatabase() {
 seed();
 
 module.exports = {
+  databaseType: usingPostgres ? "postgresql" : "sqlite",
   authAttemptCount,
   closeDatabase,
   createAccount,
