@@ -40,7 +40,7 @@ The system includes password-based accounts and workspace-scoped request/payment
 ## Challenge requirement check
 
 - **PayPal developer platform:** Implemented through PayPal JavaScript Checkout and server-side Orders v2 sandbox create/capture. This local environment has no sandbox client ID or secret, so checkout currently saves no-charge local records until configured.
-- **AI:** Gemini Interactions is implemented for catalog-constrained planning and workspace-aware support. A local Gemini key is configured, but Google returned a temporary high-demand response and a retry timed out during review. The app now falls back to labeled local planning and guided help; a successful Gemini response has not yet been verified.
+- **AI:** Gemini Interactions is implemented for catalog-constrained planning and workspace-aware support. A live Gemini-generated plan and support reply were verified locally; when the primary model returned a temporary high-demand response, the configured fallback model succeeded. The public repository does not include the private API key, so configure `GEMINI_API_KEY` for judge runs.
 - **Working prototype:** The SQLite app runs on Node.js 22.5+ and supports accounts, request review, plan editing, local order records, contact tickets, and CSV export. Full Gemini and PayPal sandbox flows need their respective keys.
 - **Documentation:** Setup, data flow, product scope, research notes, and a walkthrough are documented. Optional sponsor tools are not currently used.
 
