@@ -711,13 +711,22 @@ const host = process.env.HOST || "127.0.0.1";
 
 async function prepareDemoWorkspace() {
   if (!auth.DEMO_LOGIN_ENABLED) return;
-  const existing = database.getUserByEmail(auth.DEMO_EMAIL);
+  let demoEmail = auth.DEMO_EMAIL;
+  let existing = database.getUserByEmail(demoEmail);
   if (existing && !existing.is_demo) {
-    throw new Error("DEMO_EMAIL is already used by a normal account. Choose a different demo address or disable demo sign-in.");
+    const [localPart, domain] = demoEmail.split("@");
+    let suffix = 1;
+    do {
+      demoEmail = `${localPart}+judge${suffix === 1 ? "" : suffix}@${domain}`;
+      existing = database.getUserByEmail(demoEmail);
+      suffix += 1;
+    } while (existing && !existing.is_demo && suffix <= 101);
+    if (existing && !existing.is_demo) throw new Error("Could not allocate a separate demo sign-in address.");
+    auth.DEMO_EMAIL = demoEmail;
   }
   database.ensureDemoAccount({
     id: existing?.id || "commonthread-demo-account",
-    email: auth.DEMO_EMAIL,
+    email: demoEmail,
     displayName: "CommonThread Demo",
     passwordHash: await auth.hashPassword(auth.DEMO_PASSWORD),
     workspaceId: "commonthread-demo-workspace",
