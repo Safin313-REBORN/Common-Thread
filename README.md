@@ -76,7 +76,7 @@ The public Contact page stores support requests in SQLite, links them to the sig
 5. Open Payments to inspect the order snapshot, payment state, saved FX reference, activity, and CSV export.
 6. Use the assistant for product help; use Contact for a support ticket.
 
-See [HACKATHON_READINESS.md](HACKATHON_READINESS.md) for a requirement-by-requirement readiness check, [RESEARCH.md](RESEARCH.md) for the benchmark and evidence caveats, [SUBMISSION.md](SUBMISSION.md) for the pitch and walkthrough, [PRODUCT.md](PRODUCT.md) for scope, and [ARCHITECTURE.md](ARCHITECTURE.md) for the backend and data model.
+See [JUDGE_GUIDE.md](JUDGE_GUIDE.md) for the shortest setup and evaluation path, [HACKATHON_READINESS.md](HACKATHON_READINESS.md) for the requirement-by-requirement status, [RESEARCH.md](RESEARCH.md) for the benchmark and evidence caveats, [SUBMISSION.md](SUBMISSION.md) for the pitch and walkthrough, [PRODUCT.md](PRODUCT.md) for scope, and [ARCHITECTURE.md](ARCHITECTURE.md) for the backend and data model.
 
 ## API overview
 
