@@ -1,0 +1,10 @@
+.env
+node_modules/
+data/runtime.json
+data/runtime.json.tmp
+data/*.sqlite
+data/*.sqlite-shm
+data/*.sqlite-wal
+.impeccable/
+.DS_Store
+npm-debug.log*
