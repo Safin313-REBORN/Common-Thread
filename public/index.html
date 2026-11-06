@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#102b62">
+    <meta name="description" content="A community procurement workspace for request review, controlled PayPal checkout, and itemized financial records.">
+    <meta property="og:title" content="CommonThread | Community purchase planning">
+    <meta property="og:description" content="Review requests, build policy-checked supply plans, and keep a clear payment record.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/og-card.svg">
+    <title>CommonThread | Community purchase planning</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to content</a>
+    <svg class="icon-library" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+      <symbol id="icon-thread" viewBox="0 0 32 32"><path d="M5 8h8l6 8h8M5 24h8l6-8h8"/><circle cx="5" cy="8" r="2"/><circle cx="27" cy="8" r="2"/><circle cx="5" cy="24" r="2"/><circle cx="27" cy="24" r="2"/></symbol>
+      <symbol id="icon-spark" viewBox="0 0 24 24"><path d="m12 3 1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7L12 3ZM19 16l.8 2.2L22 19l-2.2.8L19 22l-.8-2.2L16 19l2.2-.8L19 16Z"/></symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></symbol>
+      <symbol id="icon-arrow-up-right" viewBox="0 0 24 24"><path d="m7 17 10-10M8 7h9v9"/></symbol>
+      <symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+      <symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol>
+      <symbol id="icon-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="icon-box" viewBox="0 0 24 24"><path d="m3 7 9-4 9 4-9 4-9-4ZM3 7v10l9 4 9-4V7M12 11v10M7.5 5l9 4"/></symbol>
+      <symbol id="icon-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v5c0 5-3.2 8.5-8 10-4.8-1.5-8-5-8-10V6l8-3Z"/><path d="m8.5 12 2.2 2.2 4.8-5"/></symbol>
+      <symbol id="icon-receipt" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6M9 16h3"/></symbol>
+      <symbol id="icon-pin" viewBox="0 0 24 24"><path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2"/></symbol>
+      <symbol id="icon-grain" viewBox="0 0 24 24"><path d="M12 21V4M12 10c-4.8 0-7-2.4-7-5 4.4 0 7 1.6 7 5ZM12 15c4.8 0 7-2.4 7-5-4.4 0-7 1.6-7 5ZM12 20c-4.8 0-7-2.4-7-5 4.4 0 7 1.6 7 5ZM12 7c4.8 0 7-2.4 7-5-4.4 0-7 1.6-7 5Z"/></symbol>
+      <symbol id="icon-bottle" viewBox="0 0 24 24"><path d="M9 3h6v3l-1 2v2l3 2v8H7v-8l3-2V8L9 6V3Z"/><path d="M9 14h6"/></symbol>
+      <symbol id="icon-can" viewBox="0 0 24 24"><path d="M6 5c0-1.1 2.7-2 6-2s6 .9 6 2-2.7 2-6 2-6-.9-6-2ZM6 5v14c0 1.1 2.7 2 6 2s6-.9 6-2V5M6 16c0 1.1 2.7 2 6 2s6-.9 6-2"/></symbol>
+      <symbol id="icon-jar" viewBox="0 0 24 24"><path d="M7 6h10l1 3v11H6V9l1-3ZM8 3h8v3H8zM6 11h12"/></symbol>
+      <symbol id="icon-soap" viewBox="0 0 24 24"><path d="M7 5c0-1.1 2.2-2 5-2s5 .9 5 2-2.2 2-5 2-5-.9-5-2ZM5 8h14v11H5z"/><circle cx="9" cy="13" r=".7"/><circle cx="14" cy="16" r=".7"/></symbol>
+      <symbol id="icon-book" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H20v18H7.5A2.5 2.5 0 0 0 5 22V4.5ZM5 18a2.5 2.5 0 0 1 2.5-2.5H20M9 6h7M9 9h7"/></symbol>
+      <symbol id="icon-pencil" viewBox="0 0 24 24"><path d="m4 16 10-10 4 4L8 20H4v-4ZM12 8l4 4M3 21l5-1"/></symbol>
+      <symbol id="icon-bag" viewBox="0 0 24 24"><path d="M5 8h14l1 13H4L5 8ZM9 8V6a3 3 0 0 1 6 0v2M8 12v2M16 12v2"/></symbol>
+      <symbol id="icon-lamp" viewBox="0 0 24 24"><path d="M9 19h6M10 22h4M8 15c-1.8-1.2-3-3.2-3-5.5a7 7 0 0 1 14 0c0 2.3-1.2 4.3-3 5.5-.7.5-1 1.1-1 2H9c0-.9-.3-1.5-1-2Z"/></symbol>
+      <symbol id="icon-bulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M8 15c-1.7-1.2-3-3.1-3-5.4a7 7 0 0 1 14 0c0 2.3-1.3 4.2-3 5.4-.7.5-1 1.1-1 2H9c0-.9-.3-1.5-1-2Z"/><path d="M12 3v2"/></symbol>
+      <symbol id="icon-cord" viewBox="0 0 24 24"><path d="M8 7V3M16 7V3M6 7h12v6a6 6 0 0 1-12 0V7ZM12 19v2"/></symbol>
+      <symbol id="icon-tools" viewBox="0 0 24 24"><path d="m14 6 4-4 4 4-4 4M16 8 8 16M7 14a4 4 0 1 0 3 3l-5 5-4-4 5-5"/></symbol>
+    </svg>
+
+    <header class="site-header" id="top">
+      <a class="brand" href="#builder" aria-label="CommonThread home">
+        <span class="brand-mark"><svg aria-hidden="true"><use href="#icon-thread"/></svg></span>
+        <span class="brand-wordmark">CommonThread<span class="brand-product">COMMUNITY FINANCE</span></span>
+      </a>
+      <button class="menu-toggle" id="menu-toggle" type="button" aria-label="Open navigation" aria-expanded="false"><span></span><span></span><span></span></button>
+      <nav class="site-nav" id="site-nav" aria-label="Main navigation">
+        <button class="nav-item is-active" type="button" data-view="builder" aria-current="page">Build a kit</button>
+        <button class="nav-item" type="button" data-view="requests">Requests <span class="nav-count" id="nav-request-count">0</span></button>
+        <button class="nav-item" type="button" data-view="orders">Payments <span class="nav-count" id="nav-order-count">0</span></button>
+        <button class="nav-item" type="button" data-view="how">How it works</button>
+        <button class="nav-item" type="button" data-view="account">Account</button>
+      </nav>
+      <button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false" aria-label="Switch to dark theme"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20.5 15.2A8.5 8.5 0 0 1 8.8 3.5 8.6 8.6 0 1 0 20.5 15.2Z"/></svg><span>Dark mode</span></button>
+      <div class="header-meta"><span class="connection-light"></span><span id="mode-label">Local records · no charge</span></div>
+    </header>
+
+    <main id="main-content">
+      <div class="demo-workspace-banner" id="demo-workspace-banner" role="status" aria-live="polite" hidden>
+        <strong>Shared judge demo · read only</strong>
+        <span>Sample requests are isolated. Build and inspect a plan here. To try edits and save records, open Account, sign out, and create your own workspace.</span>
+      </div>
+      <section class="page-view is-visible" id="view-builder" aria-labelledby="hero-title">
+        <section class="hero-section reveal-section">
+          <div class="hero-copy">
+            <p class="eyebrow"><span class="eyebrow-line"></span> COMMUNITY PROCUREMENT WORKSPACE</p>
+            <h1 id="hero-title">Plan community purchases with clear approvals.</h1>
+            <p class="hero-subtitle">Review a request, build a basket from the catalog, and check the order before payment. A person approves every purchase.</p>
+            <div class="hero-actions">
+              <button class="button button-primary button-large" type="button" data-view="requests">Open request desk <svg aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+              <span class="hero-proof"><svg aria-hidden="true"><use href="#icon-shield"/></svg><span id="hero-proof-copy">Reviewed request · catalog priced · sandbox checkout</span></span>
+            </div>
+            <div class="hero-stats" aria-label="Workspace activity">
+              <div><strong id="review-count">—</strong><span>requests to review</span></div>
+              <div><strong id="ready-count">—</strong><span>ready to plan</span></div>
+              <div><strong id="catalog-count">—</strong><span>catalog products</span></div>
+            </div>
+          </div>
+          <div class="hero-art hero-control-panel" aria-label="Procurement controls">
+            <div class="control-panel-head"><span>SPEND CONTROLS</span><span class="control-live"><i></i> ACTIVE</span></div>
+            <div class="control-list">
+              <div><span class="control-index">01</span><span><strong>Request review</strong><small>Organizer moves it to Ready</small></span><b>Required</b></div>
+              <div><span class="control-index">02</span><span><strong>Catalog pricing</strong><small>Server owns prices and totals</small></span><b>Enforced</b></div>
+              <div><span class="control-index">03</span><span><strong>Payment approval</strong><small>Buyer confirms in PayPal</small></span><b>Human</b></div>
+              <div><span class="control-index">04</span><span><strong>Activity record</strong><small>Request and order events persist</small></span><b>Logged</b></div>
+            </div>
+              <div class="control-panel-foot"><svg aria-hidden="true"><use href="#icon-shield"/></svg><span>The planner suggests items. The server checks them. You approve the purchase.</span></div>
+          </div>
+        </section>
+
+        <section class="builder-section content-width" id="builder" aria-labelledby="builder-title">
+          <div class="section-intro reveal-section">
+            <div><p class="section-kicker"><span>01</span> BUILD A SUPPLY KIT</p><h2 id="builder-title">Build a kit for a request.</h2><p>Select a request, set a budget, and describe what the kit should include.</p></div>
+            <div class="catalog-note"><span class="catalog-note-dot"></span><span>Catalog policy<br><strong>Server-owned price and stock</strong></span></div>
+          </div>
+          <div class="builder-layout">
+            <form class="builder-form reveal-section" id="builder-form" novalidate>
+              <fieldset class="need-fieldset">
+                <legend><span class="field-number">1</span><span>Choose a community need</span></legend>
+                <div class="need-options" id="need-options" aria-live="polite"><div class="loading-row"><span class="loader-dot"></span>Loading community needs…</div></div>
+              </fieldset>
+              <label class="field-label" for="kit-intent"><span class="field-number">2</span><span>What should this kit cover?</span></label>
+              <textarea id="kit-intent" name="intent" maxlength="600" rows="3" placeholder="Example: pantry basics for a family of four with shelf-stable essentials" required></textarea>
+              <div class="field-helper"><span>Use the filters below for enforced diet and allergen rules.</span><span id="intent-count">0 / 600</span></div>
+              <div class="budget-field-row">
+                <label class="field-label" for="kit-budget"><span class="field-number">3</span><span>Set your maximum budget</span></label>
+                <label class="budget-input"><span aria-hidden="true">$</span><input id="kit-budget" name="budget" type="number" min="5" max="1000" step="0.01" value="40.00" inputmode="decimal" required><span>USD</span></label>
+              </div>
+              <div class="preset-budgets" role="group" aria-label="Suggested kit budgets">
+                <button type="button" data-budget="2500">$25</button><button type="button" data-budget="4000" class="is-selected" aria-pressed="true">$40</button><button type="button" data-budget="6000" aria-pressed="false">$60</button>
+              </div>
+              <div class="constraints-grid">
+                <fieldset>
+                  <legend>Diet preference</legend>
+                  <select id="diet-preference" name="diet"><option value="none">No preference</option><option value="vegetarian">Vegetarian</option><option value="vegan">Vegan</option></select>
+                </fieldset>
+                <fieldset>
+                  <legend>Avoid allergens</legend>
+                  <div class="allergen-options"><label><input type="checkbox" name="allergen" value="peanuts"><span>Peanuts</span></label><label><input type="checkbox" name="allergen" value="gluten"><span>Gluten</span></label><label><input type="checkbox" name="allergen" value="dairy"><span>Dairy</span></label><label><input type="checkbox" name="allergen" value="soy"><span>Soy</span></label><label><input type="checkbox" name="allergen" value="shellfish"><span>Shellfish</span></label></div>
+                </fieldset>
+              </div>
+              <div class="form-error" id="form-error" role="alert" hidden></div>
+              <button class="button button-primary button-build" id="build-kit" type="submit"><svg aria-hidden="true"><use href="#icon-box"/></svg><span>Build procurement plan</span><svg class="button-arrow" aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+              <p class="form-privacy"><svg aria-hidden="true"><use href="#icon-shield"/></svg><span>Don't include names, exact addresses, or personal health details. Gemini receives the request and catalog context when connected.</span></p>
+            </form>
+
+            <aside class="agent-rail reveal-section" aria-labelledby="agent-rail-title">
+              <div class="agent-rail-top"><span class="agent-orb"><svg aria-hidden="true"><use href="#icon-shield"/></svg></span><span class="agent-status"><i></i><span id="agent-status-text" role="status" aria-live="polite">READY TO PLAN</span></span></div>
+              <h3 id="agent-rail-title">Review every item before checkout.</h3>
+              <p>The planner can choose catalog items. The server checks product IDs, stock, restrictions, and budget. You can edit the basket.</p>
+              <div class="agent-steps" id="agent-steps">
+                <div class="agent-step is-current" data-agent-step="understand"><span>01</span><i></i><div><strong>Understand the need</strong><small>Community request + your brief</small></div></div>
+                <div class="agent-step" data-agent-step="catalog"><span>02</span><i></i><div><strong>Match catalog items</strong><small>Available products and prices</small></div></div>
+                <div class="agent-step" data-agent-step="validate"><span>03</span><i></i><div><strong>Validate the kit</strong><small>Stock, restrictions, and budget</small></div></div>
+              </div>
+              <div class="agent-rail-footer"><span>SUPPORTER STAYS IN CONTROL</span><svg aria-hidden="true"><use href="#icon-shield"/></svg></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="kit-section content-width" id="kit-review" aria-labelledby="kit-title" hidden>
+          <div class="kit-section-heading reveal-section"><div><p class="section-kicker"><span>02</span> REVIEW THE PLAN</p><h2 id="kit-title">An itemized basket you control.</h2><p id="kit-summary">Every item, quantity, and price comes from the catalog.</p></div><span class="source-badge" id="kit-source">Local planning rules</span></div>
+          <div class="kit-layout">
+            <div class="kit-main-panel">
+              <div class="kit-list-heading"><div><span class="kit-count" id="kit-item-count">0 items</span><strong>Items in this kit</strong></div><button class="text-link" type="button" data-edit-request>Change request <svg aria-hidden="true"><use href="#icon-arrow-up-right"/></svg></button></div>
+              <div class="kit-lines" id="kit-lines"></div>
+              <div class="catalog-add-row"><label for="add-catalog-product">Add an item from the catalog</label><div><select id="add-catalog-product"><option value="">Choose a product</option></select><button class="button button-outline" id="add-catalog-item" type="button"><svg aria-hidden="true"><use href="#icon-plus"/></svg>Add</button></div></div>
+              <p class="kit-validation" id="kit-validation" role="status"><svg aria-hidden="true"><use href="#icon-shield"/></svg><span>Server checked item IDs, current prices, available stock, and budget.</span></p>
+            </div>
+            <aside class="order-panel" aria-labelledby="order-summary-title">
+              <div class="order-panel-head"><span class="order-panel-mark"><svg aria-hidden="true"><use href="#icon-box"/></svg></span><div><h3 id="order-summary-title">Order summary</h3><p id="order-need-name">Community need</p></div></div>
+              <div class="summary-line"><span>Kit subtotal</span><strong id="kit-subtotal">$0.00</strong></div>
+              <div class="summary-line summary-budget"><span>Budget cap</span><strong id="kit-budget-cap">$0.00</strong></div>
+              <div class="budget-meter"><span id="budget-meter-fill"></span></div>
+              <p class="budget-remaining" id="budget-remaining">$0.00 remaining in budget</p>
+              <div class="summary-total"><span id="kit-total-label">PayPal order total</span><strong id="kit-total" aria-live="polite">$0.00</strong></div>
+              <div class="checkout-zone" id="checkout-zone">
+                <button class="button button-sun button-checkout" id="local-checkout" type="button"><span>Save no-charge record</span><svg aria-hidden="true"><use href="#icon-arrow"/></svg></button>
+                <div id="paypal-button-container" class="paypal-button-container" hidden></div>
+                <p class="checkout-caption" id="checkout-caption">No payment credentials are connected. Save a no-charge local record.</p>
+              </div>
+              <div class="duplicate-warning" id="duplicate-warning" hidden><div><strong>Recent order on this request</strong><span>Check the payment record before creating another purchase.</span></div><button type="button" data-view="orders">Review</button></div>
+              <div class="checkout-error" id="checkout-error" role="alert" hidden></div>
+              <div class="merchant-note"><svg aria-hidden="true"><use href="#icon-receipt"/></svg><span id="merchant-note-copy">One itemized PayPal order<br><strong>Capture recorded in your order history</strong></span></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="tagline-section reveal-section" aria-label="How CommonThread works">
+          <p class="tagline-text" id="tagline-text">From a written need<br>to an order you can inspect.</p>
+          <span class="tagline-mark"><svg aria-hidden="true"><use href="#icon-thread"/></svg></span>
+        </section>
+
+        <section class="benefits-section content-width reveal-section" aria-labelledby="benefits-title">
+          <div class="section-intro section-intro-compact"><div><p class="section-kicker"><span>THE WORKFLOW</span></p><h2 id="benefits-title">Keep the request and order together.</h2></div></div>
+          <div class="benefit-grid">
+            <article class="benefit-item"><span class="benefit-index">01</span><div class="benefit-icon"><svg aria-hidden="true"><use href="#icon-grain"/></svg></div><h3>Grounded in a catalog</h3><p>The agent selects known products, recorded prices, and available quantities. It cannot invent a SKU or price.</p></article>
+            <article class="benefit-item"><span class="benefit-index">02</span><div class="benefit-icon"><svg aria-hidden="true"><use href="#icon-shield"/></svg></div><h3>Rules before money</h3><p>Server checks budget, stock, and dietary restrictions before creating an order. You can still edit the kit.</p></article>
+            <article class="benefit-item"><span class="benefit-index">03</span><div class="benefit-icon"><svg aria-hidden="true"><use href="#icon-receipt"/></svg></div><h3>Keep an order record</h3><p>When PayPal sandbox is configured, the buyer approves the listed items in PayPal. CommonThread saves the order details and payment status.</p></article>
+          </div>
+        </section>
+      </section>
+
+      <section class="page-view content-width requests-view" id="view-requests" aria-labelledby="requests-title" hidden>
+        <div class="page-title-row reveal-section"><div><p class="section-kicker"><span>REQUEST OPERATIONS</span></p><h1 id="requests-title">Request desk</h1><p>Capture a need, review it, then mark it Ready for a procurement plan.</p></div><button class="button button-primary" id="new-request-toggle" type="button"><svg aria-hidden="true"><use href="#icon-plus"/></svg> Add a request</button></div>
+        <div class="request-summary" id="request-summary" aria-live="polite"></div>
+        <p class="request-starter-note"><svg aria-hidden="true"><use href="#icon-receipt"/></svg><span><strong>Starter records are illustrative.</strong> Review and replace these examples with requests your organization has checked before using them for real procurement.</span></p>
+        <form class="request-form" id="request-form" hidden novalidate>
+          <div class="request-form-heading"><div><p class="section-kicker"><span>NEW REQUEST</span></p><h2>Describe the need.</h2><p>Keep this focused on items and outcomes. Do not enter a person's name, exact address, or sensitive details.</p></div><button class="icon-button" id="close-request-form" type="button" aria-label="Close request form"><svg aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+          <div class="request-form-grid">
+            <label>Request title<input name="title" maxlength="80" minlength="4" placeholder="e.g. Learning materials for an after-school room" required></label>
+            <label>Category<select name="category" required><option value="Food">Food</option><option value="Learning">Learning</option><option value="Community space">Community space</option><option value="Emergency">Emergency</option><option value="Other">Other</option></select></label>
+            <label>City or community area<input name="location" maxlength="80" placeholder="e.g. East Ward, Kumasi" required></label>
+            <label>Planning cap (USD)<input name="budgetCents" type="number" min="5" max="1000" step="0.01" value="40.00" inputmode="decimal" required></label>
+            <label class="request-summary-field">What is needed and why?<textarea name="summary" maxlength="500" minlength="24" rows="3" placeholder="Describe the practical need without identifying a recipient." required></textarea></label>
+          </div>
+          <div class="request-form-foot"><span>New requests enter Review. Mark Ready only after your organization has checked the request.</span><div><button class="button button-outline" id="cancel-request" type="button">Cancel</button><button class="button button-primary" type="submit">Save for review <svg aria-hidden="true"><use href="#icon-arrow"/></svg></button></div></div>
+          <div class="form-error" id="request-error" role="alert" hidden></div>
+        </form>
+        <div class="request-filters" role="group" aria-label="Filter requests">
+          <button type="button" class="request-filter is-active" data-request-filter="all" aria-pressed="true">All requests</button>
+          <button type="button" class="request-filter" data-request-filter="review" aria-pressed="false">Review <span id="review-filter-count">0</span></button>
+          <button type="button" class="request-filter" data-request-filter="ready" aria-pressed="false">Ready <span id="ready-filter-count">0</span></button>
+          <button type="button" class="request-filter" data-request-filter="closed" aria-pressed="false">Closed</button>
+        </div>
+        <div class="request-list" id="request-list"></div>
+        <div class="request-empty" id="request-empty" hidden><span class="empty-box"><svg aria-hidden="true"><use href="#icon-receipt"/></svg></span><h2>No requests in this view.</h2><p>Add a request to build a real procurement workflow in this workspace.</p><button class="button button-primary" type="button" data-open-request>Record a community need <svg aria-hidden="true"><use href="#icon-arrow"/></svg></button></div>
+        <p class="request-workflow-note"><svg aria-hidden="true"><use href="#icon-shield"/></svg><span><strong>Ready does not verify identity.</strong> It means an organizer has reviewed the request for planning. The app does not verify recipients or suppliers.</span></p>
+      </section>
+
+      <section class="page-view content-width" id="view-orders" aria-labelledby="orders-title" hidden>
+        <div class="page-title-row reveal-section"><div><p class="section-kicker"><span>FINANCIAL RECORDS</span></p><h1 id="orders-title">Payment activity</h1><p>Itemized orders, payment states, and references for reconciliation.</p></div><div class="page-actions"><button class="button button-outline" id="export-ledger" type="button"><svg aria-hidden="true"><use href="#icon-receipt"/></svg> Export statement</button><button class="button button-primary" type="button" data-scroll-builder>Build a kit <svg aria-hidden="true"><use href="#icon-arrow"/></svg></button></div></div>
+        <div class="order-metrics" id="order-metrics"></div>
+        <div class="orders-list" id="orders-list"></div>
+        <div class="orders-empty" id="orders-empty" hidden><span class="empty-box"><svg aria-hidden="true"><use href="#icon-receipt"/></svg></span><h2>No payments recorded yet.</h2><p>Build a kit from a Ready request. Each saved order will appear here with its itemized record.</p><button class="button button-primary" type="button" data-scroll-builder>Build a kit <svg aria-hidden="true"><use href="#icon-arrow"/></svg></button></div>
+      </section>
+
+      <section class="page-view content-width how-view" id="view-how" aria-labelledby="how-title" hidden>
+        <div class="page-title-row reveal-section"><div><p class="section-kicker"><span>THE FLOW</span></p><h1 id="how-title">Agent plans. Person approves. PayPal captures.</h1><p>Every step stays visible in the request and payment record.</p></div><button class="button button-primary" type="button" data-scroll-builder>Build a supply kit <svg aria-hidden="true"><use href="#icon-arrow"/></svg></button></div>
+        <div class="steps-line" aria-label="Three kit ordering steps">
+          <article class="work-step"><span class="work-step-number">01</span><div class="work-step-icon"><svg aria-hidden="true"><use href="#icon-pin"/></svg></div><h2>Describe the need</h2><p>Choose a community request, explain the outcome, set a budget, and add dietary restrictions.</p></article>
+          <article class="work-step"><span class="work-step-number">02</span><div class="work-step-icon"><svg aria-hidden="true"><use href="#icon-box"/></svg></div><h2>Review the plan</h2><p>The planner proposes catalog items. Server rules recalculate prices, check availability, and reject unsupported products.</p></article>
+          <article class="work-step"><span class="work-step-number">03</span><div class="work-step-icon"><svg aria-hidden="true"><use href="#icon-box"/></svg></div><h2>Approve one order</h2><p>You inspect the exact order. With sandbox credentials configured, PayPal captures it; SQLite stores the receipt and event trail.</p></article>
+        </div>
+        <div class="payment-boundary-panel reveal-section"><div class="boundary-symbol"><svg aria-hidden="true"><use href="#icon-shield"/></svg></div><div><p class="section-kicker"><span>PAYMENTS AND LIMITS</span></p><h2>Know what this app does.</h2><p>PayPal checkout uses sandbox funds when credentials are configured. Local orders send no payment. The app has no live suppliers, delivery service, recipient payouts, or identity checks.</p></div><div class="mode-cards"><div><span id="ai-mode-label">Local rules</span><small>Planning mode</small></div><div><span id="payment-mode-label">Local record</span><small>Payment mode</small></div></div></div>
+        <section class="faq-section reveal-section" aria-labelledby="faq-title"><div><p class="section-kicker"><span>QUESTIONS</span></p><h2 id="faq-title">Before you build.</h2></div><div class="faq-list">
+          <details><summary>What does the AI decide?<svg aria-hidden="true"><use href="#icon-chevron"/></svg></summary><p>Gemini ranks products from the supplied catalog and suggests quantities with a short reason. The server controls product IDs, prices, stock, constraints, and totals.</p></details>
+          <details><summary>Can the agent place an order by itself?<svg aria-hidden="true"><use href="#icon-chevron"/></svg></summary><p>No. You can edit or remove any item. PayPal checkout begins only after you choose the approved kit.</p></details>
+          <details><summary>Is the catalog live from a supplier?<svg aria-hidden="true"><use href="#icon-chevron"/></svg></summary><p>No. The workspace includes an illustrative starter catalog. Prices and availability are stored locally and are not supplier quotes or real inventory.</p></details>
+          <details><summary>Will the sandbox order ship these items?<svg aria-hidden="true"><use href="#icon-chevron"/></svg></summary><p>No. PayPal sandbox captures go to the configured test merchant and do not purchase or ship goods.</p></details>
+          <details><summary>What goes to Gemini?<svg aria-hidden="true"><use href="#icon-chevron"/></svg></summary><p>When configured, the server sends the selected need, your kit request, budget, restrictions, and available catalog details with storage disabled. No payment credentials are sent to the model.</p></details>
+          <details><summary>Can I run it without API keys?<svg aria-hidden="true"><use href="#icon-chevron"/></svg></summary><p>Yes. Local planning and no-charge order records work without Gemini or PayPal credentials. Add sandbox credentials to enable PayPal's test checkout.</p></details>
+        </div></section>
+      </section>
+
+      <section class="page-view content-width account-view" id="view-account" aria-labelledby="account-title" hidden>
+        <div class="page-title-row reveal-section"><div><p class="section-kicker"><span>ACCOUNT SETTINGS</span></p><h1 id="account-title">Manage your account.</h1><p>Update your profile, workspace, region, and checkout currency.</p></div><button class="button button-outline" id="sign-out" type="button">Sign out</button></div>
+        <div class="account-grid">
+          <form class="account-panel" id="profile-form">
+            <div class="account-panel-heading"><span class="account-icon">01</span><div><h2>Profile & workspace</h2><p>These settings belong to your private workspace.</p></div></div>
+            <label class="account-field">Your name<input name="displayName" id="account-name" minlength="2" maxlength="80" required></label>
+            <label class="account-field">Sign-in email<input id="account-email" type="email" readonly></label>
+            <label class="account-field">Community or organization<input name="workspaceName" id="workspace-name" minlength="2" maxlength="80" required></label>
+            <div class="form-error" id="profile-error" role="alert" hidden></div>
+            <button class="button button-primary" type="submit">Save profile</button>
+          </form>
+
+          <form class="account-panel" id="market-form">
+            <div class="account-panel-heading"><span class="account-icon">02</span><div><h2>Payments & region</h2><p>Choose a PayPal REST market and the currency used for checkout.</p></div></div>
+            <label class="account-field">Community country or region<select name="countryCode" id="account-country" required></select></label>
+            <label class="account-field">PayPal checkout currency<select name="currencyCode" id="account-currency" required></select></label>
+            <div class="market-note" id="market-note" role="status"></div>
+            <div class="form-error" id="market-error" role="alert" hidden></div>
+            <button class="button button-primary" type="submit">Save payment region</button>
+          </form>
+
+          <section class="account-panel" aria-labelledby="security-title">
+            <div class="account-panel-heading"><span class="account-icon">03</span><div><h2 id="security-title">Sign-in security</h2><p id="security-copy">Passwords are stored as salted scrypt hashes.</p></div></div>
+            <form id="password-form" class="account-subform">
+              <label class="account-field" id="current-password-field">Current password<input id="current-password" name="currentPassword" type="password" autocomplete="current-password" required></label>
+              <label class="account-field">New password<input name="newPassword" type="password" minlength="12" maxlength="128" autocomplete="new-password" required><small>Use at least 12 characters.</small></label>
+              <div class="form-error" id="password-error" role="alert" hidden></div>
+              <button class="button button-outline" id="password-submit" type="submit">Change password</button>
+            </form>
+            <div class="session-heading"><strong>Active sessions</strong><button class="text-link" id="revoke-sessions" type="button">Sign out other sessions</button></div>
+            <ul class="session-list" id="session-list"><li>Loading sessions…</li></ul>
+          </section>
+
+          <section class="account-panel" aria-labelledby="support-title">
+            <div class="account-panel-heading"><span class="account-icon">04</span><div><h2 id="support-title">Support requests</h2><p>Your support history is visible to this workspace.</p></div></div>
+            <ul class="ticket-list" id="ticket-list"><li>Loading support history…</li></ul>
+            <a class="button button-outline account-contact-link" href="/contact.html">Contact CommonThread support <span aria-hidden="true">↗</span></a>
+          </section>
+        </div>
+        <p class="account-footnote">This build does not send password-reset emails. Keep your password in a trusted password manager and contact the site operator if you lose access.</p>
+      </section>
+    </main>
+
+    <footer class="site-footer"><div class="footer-brand"><span class="brand-mark"><svg aria-hidden="true"><use href="#icon-thread"/></svg></span><span>CommonThread</span></div><p>Requests, reviewed plans, and order records in one workspace.</p><nav aria-label="Legal and project information"><a href="/privacy.html">Privacy</a><a href="/terms.html">Terms and limits</a><a href="/contact.html">Contact</a><button class="footer-how" type="button" data-view="how">How it works</button></nav><small>PayPal sandbox when configured. Local records send no payment.</small></footer>
+
+    <dialog class="receipt-dialog" id="receipt-dialog" aria-labelledby="receipt-title">
+      <div class="receipt-top"><span class="receipt-check" id="receipt-check"><svg aria-hidden="true"><use href="#icon-receipt"/></svg></span><button class="icon-button" type="button" data-close-receipt aria-label="Close receipt"><svg aria-hidden="true"><use href="#icon-close"/></svg></button></div>
+      <p class="section-kicker" id="receipt-kicker">ORDER RECEIPT</p><h2 id="receipt-title">Your kit is recorded.</h2><p id="receipt-subtitle">The no-charge local record is saved in the database.</p>
+      <div class="receipt-number-row"><span>Order reference</span><strong id="receipt-id">—</strong></div>
+      <div class="receipt-lines" id="receipt-lines"></div>
+      <div class="receipt-total"><span>Order total</span><strong id="receipt-total">$0.00</strong></div>
+      <div class="receipt-status" id="receipt-status"></div>
+      <section class="receipt-audit" aria-labelledby="receipt-audit-title"><h3 id="receipt-audit-title">Activity record</h3><ol id="receipt-audit-list"></ol></section>
+      <button class="button button-outline receipt-export" id="export-receipt" type="button"><svg aria-hidden="true"><use href="#icon-receipt"/></svg> Download itemized CSV</button>
+      <button class="button button-primary receipt-done" type="button" data-close-receipt>Done</button>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <div class="mobile-menu-scrim" id="mobile-menu-scrim" hidden></div>
+    <button class="chat-launch" id="chat-launch" type="button" aria-expanded="false" aria-controls="help-chat"><span class="chat-launch-icon" aria-hidden="true">✳</span><span>Ask CommonThread</span></button>
+    <section class="help-chat" id="help-chat" aria-label="CommonThread assistant" hidden>
+      <header class="chat-header"><span class="chat-avatar" aria-hidden="true">C</span><div><strong>CommonThread assistant</strong><small id="assistant-mode">Workspace support</small></div><button id="chat-close" type="button" aria-label="Close assistant">×</button></header>
+      <div class="chat-messages" id="chat-messages" aria-live="polite"><p class="chat-message assistant-message">Hi. I can help with requests, kit planning, payments, currencies, and account settings.</p></div>
+      <form class="chat-form" id="chat-form"><label class="visually-hidden" for="chat-input">Ask a question</label><textarea id="chat-input" rows="1" maxlength="1000" placeholder="Ask a question…" required></textarea><button type="submit" aria-label="Send question">↑</button></form>
+      <p class="chat-footnote">Support only. It cannot move money or change your account. Chat history clears when you leave this page.</p>
+    </section>
+  </body>
+</html>
