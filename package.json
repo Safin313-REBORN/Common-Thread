@@ -1,0 +1,12 @@
+{
+  "name": "commonthread-paypal-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AI-assisted, human-reviewed community supply kits with PayPal sandbox checkout",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.5"
+  }
+}
