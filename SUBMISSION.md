@@ -4,6 +4,16 @@
 
 CommonThread is a community procurement and spend-control workspace. It takes a request from intake through human review, uses AI to draft an itemized catalog-priced plan under a spending cap, and keeps the order, PayPal payment state, and activity history together. Deterministic server rules validate every SKU, quantity, restriction, price, and total. A person reviews the request and plan, then approves any PayPal sandbox checkout.
 
+## Project description for Devpost
+
+Community organizers often track requests, purchasing decisions, and receipts across separate chats and spreadsheets. CommonThread gives a small group one workspace to review needs, draft a catalog-based supply plan, check its budget, and keep the resulting order record with the original request.
+
+Gemini can propose products from the available catalog, but it cannot invent a product or price, approve a request, or start a payment. Organizers review and edit each line. The server validates the catalog items, stock, restrictions, and total. When configured, PayPal Checkout and Orders v2 complete a sandbox purchase after the buyer approves it. The request, order snapshot, payment status, and activity record stay together.
+
+CommonThread runs locally with Node.js and SQLite. The public repository includes setup instructions, a read-only judge account, and an MIT license. Gemini and PayPal sandbox credentials are optional for the basic walkthrough and are never included in the repository. Without provider credentials, the app labels its local AI fallback and saves only no-charge local order records. The starter catalog is illustrative; this prototype does not send real payments, distribute aid, or fulfill purchases.
+
+**Technology:** Node.js, SQLite, Gemini Interactions API, PayPal JavaScript Checkout, PayPal Orders v2 sandbox.
+
 The current build runs locally with an illustrative catalog, local SQLite records, optional Gemini planning, and optional PayPal sandbox checkout. Sandbox transactions do not move real money or fulfill orders.
 
 ## Why this is useful
@@ -44,4 +54,4 @@ The system includes password-based accounts and workspace-scoped request/payment
 - **Working prototype:** The SQLite app runs on Node.js 22.5+ and supports accounts, request review, plan editing, local order records, contact tickets, and CSV export. Full Gemini and PayPal sandbox flows need their respective keys.
 - **Documentation:** Setup, data flow, product scope, research notes, and a walkthrough are documented. Optional sponsor tools are not currently used.
 
-The complete project source and MIT license are published in the public [Common-Thread GitHub repository](https://github.com/Safin313-REBORN/Common-Thread). No public YouTube demo has been recorded, and this project has not been entered on Devpost. Before submitting, add a publicly visible video under three minutes, provide the project description and testing instructions, and complete Devpost's required fields. Review the [official rules](https://paypalaihackathon.devpost.com/rules), including eligibility, project ownership, and submission conditions, before entering.
+The complete project source and MIT license are published in the public [Common-Thread GitHub repository](https://github.com/Safin313-REBORN/Common-Thread). [JUDGE_GUIDE.md](JUDGE_GUIDE.md) gives the setup, walkthrough, provider configuration, and known limits. No public YouTube demo has been recorded, and this project has not been entered on Devpost. Before submitting, add a publicly visible video under three minutes, provide the repository and testing instructions, and complete Devpost's required fields. Review the [official rules](https://paypalaihackathon.devpost.com/rules), including eligibility, project ownership, and submission conditions, before entering.
