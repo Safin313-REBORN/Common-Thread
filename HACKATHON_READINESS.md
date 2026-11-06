@@ -1,6 +1,6 @@
 # PayPal AI Hackathon readiness
 
-Checked against the [official PayPal AI Hackathon rules](https://paypalaihackathon.devpost.com/rules) on November 6, 2026. The listed submission deadline is November 12, 2026 at 12:00 p.m. Pacific Time. The checkout and AI integrations are implemented, but a judgeable submission still needs working provider credentials, a source repository containing the code, and the required public video.
+Checked against the [official PayPal AI Hackathon rules](https://paypalaihackathon.devpost.com/rules) on November 6, 2026. The listed submission deadline is November 12, 2026 at 12:00 p.m. Pacific Time. The public source repository and MIT license are in place. A public demo video and Devpost entry are still required. The PayPal sandbox flow is implemented but has not been verified end-to-end here because no sandbox credentials are configured; judges will need working sandbox credentials to test checkout.
 
 ## Project requirement matrix
 
@@ -36,6 +36,6 @@ The credential-free signup, request review, plan validation, local-order, receip
 
 ## Submission work outside this app
 
-The official rules require Devpost registration and submission, a public source repository with the project code and license, and a publicly visible YouTube demo video shorter than three minutes. The MIT license and setup documentation are ready. The source is maintained in this project folder; publish it to the public source repository when preparing the entry. Video, deployment, and Devpost submission are intentionally left for the entrant. Devpost also needs a project description and functional demo access or complete setup and testing instructions. This project does not submit itself.
+The official rules require Devpost registration and submission, a public source repository with the project code and license, and a publicly visible YouTube demo video shorter than three minutes. The source and MIT license are published at [Safin313-REBORN/Common-Thread](https://github.com/Safin313-REBORN/Common-Thread). Video and Devpost submission are left for the entrant. Devpost also needs a project description and functional demo access or complete setup and testing instructions. This project does not submit itself.
 
 The rules include entrant eligibility and project-ownership conditions. Confirm those directly in the [official rules](https://paypalaihackathon.devpost.com/rules); they cannot be determined from the source code.
