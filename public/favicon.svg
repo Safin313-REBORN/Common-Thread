@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">CommonThread</title>
+  <defs><linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#1c66e8"/><stop offset="1" stop-color="#078b9a"/></linearGradient></defs>
+  <rect width="48" height="48" rx="13" fill="url(#brand)"/>
+  <g fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><path d="M9 15h10l7 9h13M9 33h10l7-9h13"/><circle cx="9" cy="15" r="2"/><circle cx="39" cy="15" r="2"/><circle cx="9" cy="33" r="2"/><circle cx="39" cy="33" r="2"/></g>
+</svg>
