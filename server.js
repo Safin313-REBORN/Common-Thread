@@ -711,29 +711,30 @@ const host = process.env.HOST || "127.0.0.1";
 
 async function prepareDemoWorkspace() {
   if (!auth.DEMO_LOGIN_ENABLED) return;
-  let demoEmail = auth.DEMO_EMAIL;
-  let existing = database.getUserByEmail(demoEmail);
-  if (existing && !existing.is_demo) {
-    const [localPart, domain] = demoEmail.split("@");
-    let suffix = 1;
-    do {
-      demoEmail = `${localPart}+judge${suffix === 1 ? "" : suffix}@${domain}`;
-      existing = database.getUserByEmail(demoEmail);
-      suffix += 1;
-    } while (existing && !existing.is_demo && suffix <= 101);
-    if (existing && !existing.is_demo) throw new Error("Could not allocate a separate demo sign-in address.");
-    auth.DEMO_EMAIL = demoEmail;
+  const [localPart, domain] = auth.DEMO_EMAIL.split("@");
+  const passwordHash = await auth.hashPassword(auth.DEMO_PASSWORD);
+  for (let suffix = 0; suffix <= 100; suffix += 1) {
+    const demoEmail = suffix === 0 ? auth.DEMO_EMAIL : `${localPart}+judge${suffix === 1 ? "" : suffix}@${domain}`;
+    const existing = database.getUserByEmail(demoEmail);
+    if (existing && !existing.is_demo) continue;
+    try {
+      database.ensureDemoAccount({
+        id: existing?.id || "commonthread-demo-account",
+        email: demoEmail,
+        displayName: "CommonThread Demo",
+        passwordHash,
+        workspaceId: "commonthread-demo-workspace",
+        workspaceName: "CommonThread demo",
+        countryCode: "US",
+        currencyCode: "USD"
+      });
+      auth.DEMO_EMAIL = demoEmail;
+      return;
+    } catch (error) {
+      if (!String(error.message).includes("DEMO_EMAIL is already used by a normal account")) throw error;
+    }
   }
-  database.ensureDemoAccount({
-    id: existing?.id || "commonthread-demo-account",
-    email: demoEmail,
-    displayName: "CommonThread Demo",
-    passwordHash: await auth.hashPassword(auth.DEMO_PASSWORD),
-    workspaceId: "commonthread-demo-workspace",
-    workspaceName: "CommonThread demo",
-    countryCode: "US",
-    currencyCode: "USD"
-  });
+  throw new Error("Could not allocate a separate demo sign-in address.");
 }
 
 prepareDemoWorkspace().then(() => {
