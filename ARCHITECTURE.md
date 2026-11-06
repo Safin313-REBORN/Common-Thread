@@ -11,7 +11,7 @@
 ```mermaid
 flowchart LR
   Browser[Responsive workspace UI] -->|HTTP-only session + CSRF| API[Node HTTP API]
-  API -->|tenant-scoped queries| DB[(SQLite)]
+  API -->|tenant-scoped queries| DB[(SQLite locally / PostgreSQL when hosted)]
   API -->|constrained prompt| Gemini[Gemini Interactions API]
   API -->|daily reference rate| FX[Frankfurter]
   API -->|Orders v2, sandbox| PayPal[PayPal sandbox]
@@ -30,7 +30,7 @@ flowchart LR
 - `community_needs`, `agent_runs`, and `orders` carry `workspace_id`; request history, payment history, metrics, detail lookups, and support records are filtered through that workspace.
 - `catalog_products` is the shared illustrative catalog. Stock reservation is therefore global within the local app.
 
-The first account adopts any unassigned local requests, plans, and orders from a pre-account database. Later accounts start with an empty private workspace. SQLite enables foreign keys, WAL mode, checks, indexes, prepared statements, and `BEGIN IMMEDIATE` for multi-row writes.
+The first account adopts any unassigned local requests, plans, and orders from a pre-account database. Later accounts start with an empty private workspace. Local SQLite uses foreign keys, WAL mode, checks, indexes, prepared statements, and `BEGIN IMMEDIATE` for multi-row writes. Hosted services can set `DATABASE_URL` to use PostgreSQL; a dedicated worker keeps the existing synchronous transaction boundary on one PostgreSQL connection.
 
 Passwords use Node's scrypt implementation with a random salt and constant-time comparison. Cookies are HTTP-only and SameSite=Lax. Mutating authenticated routes require same-origin validation and a CSRF header tied to the session. Failed login attempts are throttled by IP/email hash. There is no email verification, password-reset delivery, MFA, workspace invitations, or role-based spending approval.
 
@@ -69,7 +69,7 @@ stateDiagram-v2
   awaiting_approval --> cancelled: buyer cancellation or hold expiry
 ```
 
-The server persists the workspace-scoped idempotency key and request fingerprint before calling PayPal. It snapshots and reserves current quantities in a SQLite transaction, then sends one itemized Orders v2 purchase unit in the workspace checkout currency. Capture must be `COMPLETED` and match both the saved currency and integer minor-unit amount before the server consumes stock and records the capture reference. A local record calls no payment provider and does not reserve stock.
+The server persists the workspace-scoped idempotency key and request fingerprint before calling PayPal. It snapshots and reserves current quantities in a database transaction, then sends one itemized Orders v2 purchase unit in the workspace checkout currency. Capture must be `COMPLETED` and match both the saved currency and integer minor-unit amount before the server consumes stock and records the capture reference. A local record calls no payment provider and does not reserve stock.
 
 BRL, CNY, and MYR are restricted to in-country PayPal accounts. HUF, JPY, and TWD use zero fractional digits. The country list is a curated subset of PayPal's REST country list; country-specific product features may still differ. Country selection is not a guarantee that an account can receive a specific currency or transaction type.
 
@@ -77,7 +77,7 @@ BRL, CNY, and MYR are restricted to in-country PayPal accounts. HUF, JPY, and TW
 
 Authenticated routes are scoped to the signed-in workspace and return `Cache-Control: no-store`. Account mutations require a session CSRF token and same-origin check. Static paths are constrained to `public/`; the server sends CSP, `nosniff`, referrer, frame, and permissions headers. JSON bodies are size-limited. User text is rendered as text or escaped before insertion into HTML.
 
-Gemini, PayPal, and support credentials stay server-side. Gemini calls use `store: false`. PayPal secrets are not sent to the browser. Public contact details are blank unless the operator configures `SUPPORT_EMAIL`, `SUPPORT_PHONE`, or `SUPPORT_URL`. Ticket submission stores a record in SQLite but does not send notification email.
+Gemini, PayPal, and database credentials stay server-side. Gemini calls use `store: false`. PayPal secrets are not sent to the browser. Public contact details are blank unless the operator configures `SUPPORT_EMAIL`, `SUPPORT_PHONE`, or `SUPPORT_URL`. Ticket submission stores a record in the configured database but does not send notification email.
 
 ## Operational limits
 

@@ -4,7 +4,7 @@ CommonThread is a local-first prototype for community organizers. It keeps a req
 
 ## Start the app
 
-Requirements: Node.js 22.5 or newer. The app uses Node's built-in HTTP server and SQLite; it does not need an `npm install` step.
+Requirements: Node.js 22.5 or newer. The app uses Node's built-in HTTP server and SQLite locally. Run `npm install` to install the PostgreSQL driver used by hosted deployments.
 
 ```bash
 git clone https://github.com/Safin313-REBORN/Common-Thread.git
@@ -68,8 +68,8 @@ For the data model and security notes, see [ARCHITECTURE.md](ARCHITECTURE.md). F
 Render can host the app as a Node.js web service. The project pins Node.js `24.21.0` with `.node-version` and reads Render's assigned `PORT`.
 
 1. Create a **Web Service** from this repository's `main` branch. Use `npm install` as the build command and `npm start` as the start command.
-2. Attach a persistent disk mounted at `/var/data`.
-3. Add `HOST=0.0.0.0`, `DATABASE_PATH=/var/data/commonthread.sqlite`, and `SESSION_COOKIE_SECURE=true` in the service's environment settings. Render sets `PORT` automatically.
+2. Create a Render Postgres database in the same region as the web service. In its **Connect** menu, select the **Internal** connection and add its URL to the web service as the secret environment variable `DATABASE_URL`.
+3. Add `HOST=0.0.0.0` and `SESSION_COOKIE_SECURE=true` in the service's environment settings. Render sets `PORT` automatically. With `DATABASE_URL` configured, the server uses PostgreSQL; without it, local development uses SQLite.
 4. Set `/api/health` as the health-check path. Add `GEMINI_API_KEY` and PayPal sandbox credentials only if you have them; add them as private environment variables, never to the repository.
 
-The SQLite file must live under the mounted disk. Without a persistent disk, the service may start but account, request, and order data can disappear on restart or redeploy. The Render free web-service plan does not support persistent disks. For a temporary free preview, omit the `DATABASE_PATH` override so SQLite uses the app's default `data` directory; add the paid persistent disk before relying on saved data.
+Render's Free Postgres databases have a 1 GB limit and expire 30 days after creation. They have no backups, so use them for a short-lived preview only; upgrade before expiry or export any data you need to keep. See [Render's free plan limits](https://render.com/docs/free).

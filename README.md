@@ -6,9 +6,10 @@ The planner can recommend catalog items, but it cannot approve a request or star
 
 ## Run locally
 
-Requirements: Node.js 22.5 or newer. The app uses Node's built-in HTTP server and SQLite support; no npm packages are needed.
+Requirements: Node.js 22.5 or newer. The app uses Node's built-in HTTP server and SQLite locally, with the `pg` driver available for a hosted PostgreSQL database.
 
 ```bash
+npm install
 npm start
 ```
 
@@ -65,7 +66,7 @@ Without credentials, the workspace can save a local no-charge order record. This
 
 ## Contact
 
-The public Contact page stores support requests in SQLite, links them to the signed-in workspace when available, and shows ticket history in Account settings. Configure `SUPPORT_EMAIL`, `SUPPORT_PHONE`, or `SUPPORT_URL` to publish direct contact details. The local form does not send email notifications.
+The public Contact page stores support requests in the configured database, links them to the signed-in workspace when available, and shows ticket history in Account settings. Configure `SUPPORT_EMAIL`, `SUPPORT_PHONE`, or `SUPPORT_URL` to publish direct contact details. The local form does not send email notifications.
 
 ## Walkthrough
 
@@ -97,7 +98,7 @@ See [JUDGE_GUIDE.md](JUDGE_GUIDE.md) for the shortest setup and evaluation path,
 
 ## Current limits
 
-The starter catalog and request history are illustrative; supplier catalog, inventory, identity verification, recipient payouts, refunds, fulfilment, webhooks, and live PayPal checkout are not connected. The FX quote is a daily reference rate, not PayPal's final conversion quote. SQLite is suitable for a local single-instance workflow, not multi-instance public hosting. Diet and allergen labels are catalog metadata, not safety certification.
+The starter catalog and request history are illustrative; supplier catalog, identity verification, recipient payouts, refunds, fulfilment, webhooks, and live PayPal checkout are not connected. The FX quote is a daily reference rate, not PayPal's final conversion quote. SQLite is for local single-instance use; hosted services can use PostgreSQL through `DATABASE_URL`. Diet and allergen labels are catalog metadata, not safety certification.
 
 ## License
 

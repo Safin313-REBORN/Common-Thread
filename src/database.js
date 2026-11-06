@@ -1,19 +1,17 @@
-Warning: truncated output (original token count: 13923)
-Total output lines: 1053
-
 "use strict";
 
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { DatabaseSync } = require("node:sqlite");
+const { PostgresSyncDatabase } = require("./postgres-sync");
 
 const DATA_DIR = path.join(__dirname, "..", "data");
 const databasePath = process.env.DATABASE_PATH || path.join(DATA_DIR, "commonthread.sqlite");
-const absoluteDatabasePath = path.resolve(databasePath);
-fs.mkdirSync(path.dirname(absoluteDatabasePath), { recursive: true });
-const db = new DatabaseSync(absoluteDatabasePath);
-db.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
+const usingPostgres = Boolean(process.env.DATABASE_URL);
+if (!usingPostgres) fs.mkdirSync(path.dirname(path.resolve(databasePath)), { recursive: true });
+const db = usingPostgres ? new PostgresSyncDatabase(process.env.DATABASE_URL) : new DatabaseSync(databasePath);
+if (!usingPostgres) db.exec("PRAGMA foreign_keys = ON; PRAGMA journal_mode = WAL; PRAGMA busy_timeout = 5000;");
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS schema_migrations (
@@ -214,7 +212,9 @@ db.exec(`
 `);
 
 function ensureColumn(table, column, declaration) {
-  const columns = new Set(db.prepare(`PRAGMA table_info(${table})`).all().map((item) => item.name));
+  const columns = new Set(usingPostgres
+    ? db.prepare("SELECT column_name AS name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ?").all(table).map((item) => item.name)
+    : db.prepare(`PRAGMA table_info(${table})`).all().map((item) => item.name));
   if (!columns.has(column)) db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${declaration}`);
 }
 
@@ -230,6 +230,7 @@ ensureColumn("orders", "fx_rate", "REAL NOT NULL DEFAULT 1");
 ensureColumn("orders", "fx_rate_date", "TEXT NOT NULL DEFAULT ''");
 
 function migrateAgentRunSources() {
+  if (usingPostgres) return;
   const tableSql = db.prepare("SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'agent_runs'").get()?.sql || "";
   if (tableSql.includes("'local-fallback'")) return;
 
@@ -269,8 +270,11 @@ db.exec(`CREATE INDEX IF NOT EXISTS idx_needs_workspace ON community_needs(works
   CREATE INDEX IF NOT EXISTS idx_oauth_flows_expiry ON oauth_flows(expires_at);
   UPDATE orders SET base_budget_cents = budget_cents WHERE base_budget_cents = 0;
   UPDATE orders SET base_subtotal_cents = subtotal_cents WHERE base_subtotal_cents = 0;`);
+if (usingPostgres) db.exec("CREATE UNIQUE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email))");
 
-const needColumns = new Set(db.prepare("PRAGMA table_info(community_needs)").all().map((column) => column.name));
+const needColumns = new Set(usingPostgres
+  ? db.prepare("SELECT column_name AS name FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ?").all("community_needs").map((column) => column.name)
+  : db.prepare("PRAGMA table_info(community_needs)").all().map((column) => column.name));
 if (!needColumns.has("workflow_status")) {
   db.exec("ALTER TABLE community_needs ADD COLUMN workflow_status TEXT NOT NULL DEFAULT 'review' CHECK (workflow_status IN ('review', 'ready', 'closed'))");
 }
@@ -281,7 +285,557 @@ db.exec(`
   CREATE TRIGGER IF NOT EXISTS request_events_no_delete BEFORE DELETE ON community_request_events
     BEGIN SELECT RAISE(ABORT, 'request activity is immutable'); END;
   CREATE TRIGGER IF NOT EXISTS audit_events_no_update BEFORE UPDATE ON audit_events
-    BEGIN SELECT RAISE(ABORT, 'payment activity is immutable'); EN…7923 tokens truncated…ssign(new Error("This checkout key was already used for a different kit. Rebuild the kit to start a new checkout."), { statusCode: 409 });
+    BEGIN SELECT RAISE(ABORT, 'payment activity is immutable'); END;
+  CREATE TRIGGER IF NOT EXISTS audit_events_no_delete BEFORE DELETE ON audit_events
+    BEGIN SELECT RAISE(ABORT, 'payment activity is immutable'); END;
+`);
+
+const needs = [
+  {
+    id: "pantry-quezon-city",
+    title: "Pantry basics for a family",
+    category: "Food",
+    location: "Quezon City, Philippines",
+    summary: "A neighborhood organizer is assembling shelf-stable basics for a family after reduced work hours.",
+    suggestedPrompt: "Build a balanced pantry starter kit for a family of four with shelf-stable essentials.",
+    defaultBudgetCents: 4000
+  },
+  {
+    id: "school-la-paz",
+    title: "School-day supplies",
+    category: "Learning",
+    location: "La Paz, Bolivia",
+    summary: "A parent group is putting together practical supplies for students returning to a shared learning center.",
+    suggestedPrompt: "Create a useful school kit for one student. Include writing supplies and a reusable bottle, under $35.",
+    defaultBudgetCents: 3500
+  },
+  {
+    id: "study-kumasi",
+    title: "Keep the study room lit",
+    category: "Community space",
+    location: "Kumasi, Ghana",
+    summary: "A volunteer-run study room needs durable lighting and basic electrical supplies for evening sessions.",
+    suggestedPrompt: "Put together a safe, low-energy lighting kit for the study room. Stay under $45.",
+    defaultBudgetCents: 4500
+  }
+];
+
+const products = [
+  { id: "rice-five-kg", sku: "CT-PAN-101", name: "Rice, 5 kg", description: "A staple bag for shared household meals.", category: "Pantry", unitLabel: "bag", unitPriceCents: 845, stockOnHand: 32, iconKey: "grain", tags: ["pantry", "staple", "family", "vegetarian", "gluten-free"], allergens: [] },
+  { id: "lentils-two-kg", sku: "CT-PAN-102", name: "Lentils, 2 kg", description: "A shelf-stable source of plant protein.", category: "Pantry", unitLabel: "bag", unitPriceCents: 520, stockOnHand: 24, iconKey: "grain", tags: ["pantry", "protein", "vegetarian", "gluten-free"], allergens: [] },
+  { id: "cooking-oil-one-l", sku: "CT-PAN-103", name: "Cooking oil, 1 L", description: "Everyday cooking oil in a sealed bottle.", category: "Pantry", unitLabel: "bottle", unitPriceCents: 610, stockOnHand: 19, iconKey: "bottle", tags: ["pantry", "cooking", "vegetarian"], allergens: [] },
+  { id: "tomatoes-four-pack", sku: "CT-PAN-104", name: "Tomatoes, 4 pack", description: "Canned tomatoes for sauces and soups.", category: "Pantry", unitLabel: "pack", unitPriceCents: 445, stockOnHand: 22, iconKey: "can", tags: ["pantry", "vegetarian", "gluten-free"], allergens: [] },
+  { id: "oats-one-kg", sku: "CT-PAN-105", name: "Rolled oats, 1 kg", description: "A breakfast staple. Contains gluten.", category: "Pantry", unitLabel: "bag", unitPriceCents: 685, stockOnHand: 14, iconKey: "grain", tags: ["pantry", "breakfast", "vegetarian"], allergens: ["gluten"] },
+  { id: "peanut-butter", sku: "CT-PAN-106", name: "Peanut butter, 500 g", description: "A protein-rich spread. Contains peanuts.", category: "Pantry", unitLabel: "jar", unitPriceCents: 410, stockOnHand: 12, iconKey: "jar", tags: ["pantry", "protein", "vegetarian"], allergens: ["peanuts"] },
+  { id: "soap-three-pack", sku: "CT-HYG-201", name: "Soap bars, 3 pack", description: "Basic unscented hygiene soap.", category: "Hygiene", unitLabel: "pack", unitPriceCents: 340, stockOnHand: 28, iconKey: "soap", tags: ["hygiene", "family"], allergens: [] },
+  { id: "exercise-books-three", sku: "CT-SCH-301", name: "Exercise books, 3 pack", description: "Ruled notebooks for daily classwork.", category: "School", unitLabel: "pack", unitPriceCents: 420, stockOnHand: 50, iconKey: "book", tags: ["school", "writing"], allergens: [] },
+  { id: "pencils-ten-pack", sku: "CT-SCH-302", name: "Pencils, 10 pack", description: "Sharpened graphite pencils for class.", category: "School", unitLabel: "pack", unitPriceCents: 215, stockOnHand: 45, iconKey: "pencil", tags: ["school", "writing"], allergens: [] },
+  { id: "school-bag", sku: "CT-SCH-303", name: "Everyday school bag", description: "A light, durable backpack with two compartments.", category: "School", unitLabel: "each", unitPriceCents: 1875, stockOnHand: 12, iconKey: "bag", tags: ["school", "carry"], allergens: [] },
+  { id: "water-bottle", sku: "CT-SCH-304", name: "Reusable water bottle, 750 ml", description: "A leak-resistant bottle for school days.", category: "School", unitLabel: "each", unitPriceCents: 720, stockOnHand: 16, iconKey: "bottle", tags: ["school", "hydration"], allergens: [] },
+  { id: "geometry-set", sku: "CT-SCH-305", name: "Geometry set", description: "Ruler, compass, protractor, and set square.", category: "School", unitLabel: "set", unitPriceCents: 525, stockOnHand: 20, iconKey: "tools", tags: ["school", "math"], allergens: [] },
+  { id: "solar-study-lamp", sku: "CT-LGT-401", name: "Rechargeable study lamp", description: "A compact LED lamp with USB charging.", category: "Lighting", unitLabel: "each", unitPriceCents: 1680, stockOnHand: 11, iconKey: "lamp", tags: ["study", "energy", "lighting"], allergens: [] },
+  { id: "led-bulbs-two-pack", sku: "CT-LGT-402", name: "LED bulbs, 2 pack", description: "Low-energy bulbs for shared indoor spaces.", category: "Lighting", unitLabel: "pack", unitPriceCents: 560, stockOnHand: 20, iconKey: "bulb", tags: ["study", "energy", "lighting"], allergens: [] },
+  { id: "extension-cord", sku: "CT-LGT-403", name: "Extension cord, 3 m", description: "A grounded cord for approved indoor use.", category: "Lighting", unitLabel: "each", unitPriceCents: 930, stockOnHand: 7, iconKey: "cord", tags: ["study", "electrical", "safety"], allergens: [] }
+];
+
+const now = () => new Date().toISOString();
+
+function withTransaction(work) {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    const result = work();
+    db.exec("COMMIT");
+    return result;
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+}
+
+function getUserByEmail(email) {
+  return db.prepare("SELECT * FROM users WHERE email = ? COLLATE NOCASE").get(email);
+}
+
+function getAccount(userId) {
+  return db.prepare(`SELECT u.id AS userId, u.email, u.display_name AS displayName, u.is_demo AS isDemo,
+      u.password_auth_enabled AS hasPassword,
+      w.id AS workspaceId, w.name AS workspaceName, w.country_code AS countryCode,
+      w.currency_code AS currencyCode, wm.role
+    FROM users u JOIN workspace_members wm ON wm.user_id = u.id
+    JOIN workspaces w ON w.id = wm.workspace_id
+    WHERE u.id = ? ORDER BY wm.created_at LIMIT 1`).get(userId) || null;
+}
+
+function createAccount({ id, email, displayName, passwordHash, workspaceId, workspaceName, countryCode, currencyCode }) {
+  const timestamp = now();
+  withTransaction(() => {
+    const isFirstWorkspace = db.prepare("SELECT COUNT(*) AS count FROM users WHERE is_demo = 0").get().count === 0;
+    db.prepare(`INSERT INTO users (id, email, display_name, password_hash, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?)`).run(id, email, displayName, passwordHash, timestamp, timestamp);
+    db.prepare(`INSERT INTO workspaces (id, name, country_code, currency_code, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?)`).run(workspaceId, workspaceName, countryCode, currencyCode, timestamp, timestamp);
+    db.prepare(`INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+      VALUES (?, ?, 'owner', ?)`).run(workspaceId, id, timestamp);
+    if (isFirstWorkspace) {
+      db.prepare("UPDATE community_needs SET workspace_id = ? WHERE workspace_id IS NULL").run(workspaceId);
+      db.prepare(`UPDATE agent_runs SET workspace_id = COALESCE(
+        (SELECT workspace_id FROM community_needs WHERE community_needs.id = agent_runs.need_id), ?)
+        WHERE workspace_id IS NULL`).run(workspaceId);
+      db.prepare("UPDATE orders SET workspace_id = ? WHERE workspace_id IS NULL").run(workspaceId);
+    }
+  });
+  return getAccount(id);
+}
+
+function ensureDemoAccount({ id, email, displayName, passwordHash, workspaceId, workspaceName, countryCode, currencyCode }) {
+  const timestamp = now();
+  withTransaction(() => {
+    const existing = db.prepare("SELECT id, is_demo AS isDemo FROM users WHERE email = ? COLLATE NOCASE").get(email);
+    if (existing && !existing.isDemo) throw new Error("DEMO_EMAIL is already used by a normal account. Choose a different demo address.");
+    db.prepare("DELETE FROM users WHERE is_demo = 1 AND email <> ? COLLATE NOCASE").run(email);
+    if (existing) {
+      db.prepare("UPDATE users SET display_name = ?, password_hash = ?, updated_at = ? WHERE id = ?")
+        .run(displayName, passwordHash, timestamp, existing.id);
+      id = existing.id;
+    } else {
+      db.prepare(`INSERT INTO users (id, email, display_name, password_hash, is_demo, created_at, updated_at)
+        VALUES (?, ?, ?, ?, 1, ?, ?)`).run(id, email, displayName, passwordHash, timestamp, timestamp);
+    }
+    db.prepare(`INSERT INTO workspaces (id, name, country_code, currency_code, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET
+      name = excluded.name, country_code = excluded.country_code, currency_code = excluded.currency_code, updated_at = excluded.updated_at`)
+      .run(workspaceId, workspaceName, countryCode, currencyCode, timestamp, timestamp);
+    db.prepare(`INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+      VALUES (?, ?, 'viewer', ?) ON CONFLICT(workspace_id, user_id) DO UPDATE SET role = 'viewer'`)
+      .run(workspaceId, id, timestamp);
+
+    for (const [index, need] of needs.entries()) {
+      const demoNeedId = `demo-${need.id}`;
+      db.prepare(`INSERT OR IGNORE INTO community_needs
+        (id, workspace_id, title, category, location, summary, suggested_prompt, default_budget_cents, workflow_status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(demoNeedId, workspaceId, need.title, need.category, need.location, need.summary, need.suggestedPrompt,
+          need.defaultBudgetCents, index === 0 ? "ready" : "review", timestamp);
+      const eventExists = db.prepare("SELECT 1 FROM community_request_events WHERE need_id = ? LIMIT 1").get(demoNeedId);
+      if (!eventExists) {
+        recordNeedEvent(demoNeedId, "request.created", { status: "review", starter: true, demo: true });
+        if (index === 0) recordNeedEvent(demoNeedId, "request.status-changed", { from: "review", to: "ready", demo: true });
+      }
+    }
+  });
+  return getAccount(id);
+}
+
+function updateAccount({ userId, displayName, workspaceName, countryCode, currencyCode }) {
+  const timestamp = now();
+  withTransaction(() => {
+    db.prepare("UPDATE users SET display_name = ?, updated_at = ? WHERE id = ?").run(displayName, timestamp, userId);
+    db.prepare(`UPDATE workspaces SET name = ?, country_code = ?, currency_code = ?, updated_at = ?
+      WHERE id = (SELECT workspace_id FROM workspace_members WHERE user_id = ? ORDER BY created_at LIMIT 1)`)
+      .run(workspaceName, countryCode, currencyCode, timestamp, userId);
+  });
+  return getAccount(userId);
+}
+
+function updatePassword(userId, passwordHash) {
+  db.prepare("UPDATE users SET password_hash = ?, password_auth_enabled = 1, updated_at = ? WHERE id = ?").run(passwordHash, now(), userId);
+}
+
+function createSession({ tokenHash, csrfHash, userId, expiresAt }) {
+  const timestamp = now();
+  db.prepare(`INSERT INTO sessions (token_hash, user_id, csrf_hash, created_at, expires_at, last_seen_at)
+    VALUES (?, ?, ?, ?, ?, ?)`).run(tokenHash, userId, csrfHash, timestamp, expiresAt, timestamp);
+}
+
+function rotateSessionCsrf(tokenHash, csrfHash) {
+  db.prepare("UPDATE sessions SET csrf_hash = ?, last_seen_at = ? WHERE token_hash = ? AND expires_at > ?")
+    .run(csrfHash, now(), tokenHash, now());
+}
+
+function getSession(tokenHash) {
+  const session = db.prepare(`SELECT s.token_hash AS tokenHash, s.csrf_hash AS csrfHash,
+      s.created_at AS createdAt, s.expires_at AS expiresAt, s.last_seen_at AS lastSeenAt,
+      u.id AS userId, u.email, u.display_name AS displayName, u.is_demo AS isDemo,
+      u.password_auth_enabled AS hasPassword,
+      w.id AS workspaceId, w.name AS workspaceName, w.country_code AS countryCode,
+      w.currency_code AS currencyCode, wm.role
+    FROM sessions s JOIN users u ON u.id = s.user_id
+    JOIN workspace_members wm ON wm.user_id = u.id
+    JOIN workspaces w ON w.id = wm.workspace_id
+    WHERE s.token_hash = ? AND s.expires_at > ? ORDER BY wm.created_at LIMIT 1`).get(tokenHash, now());
+  if (session) db.prepare("UPDATE sessions SET last_seen_at = ? WHERE token_hash = ?").run(now(), tokenHash);
+  return session || null;
+}
+
+function deleteSession(tokenHash) {
+  db.prepare("DELETE FROM sessions WHERE token_hash = ?").run(tokenHash);
+}
+
+function listSessions(userId, currentTokenHash) {
+  return db.prepare(`SELECT token_hash AS tokenHash, created_at AS createdAt, last_seen_at AS lastSeenAt,
+      expires_at AS expiresAt
+    FROM sessions WHERE user_id = ? AND expires_at > ? ORDER BY last_seen_at DESC`)
+    .all(userId, now()).map((row) => ({
+      current: row.tokenHash === currentTokenHash,
+      createdAt: row.createdAt,
+      lastSeenAt: row.lastSeenAt,
+      expiresAt: row.expiresAt
+    }));
+}
+
+function deleteOtherSessions(userId, currentTokenHash) {
+  db.prepare("DELETE FROM sessions WHERE user_id = ? AND token_hash <> ?").run(userId, currentTokenHash);
+}
+
+function storeOAuthFlow({ stateHash, browserHash, provider, nonce, codeVerifier, redirectUri, expiresAt }) {
+  const timestamp = now();
+  db.prepare("DELETE FROM oauth_flows WHERE expires_at <= ?").run(timestamp);
+  db.prepare(`INSERT INTO oauth_flows (state_hash, browser_hash, provider, nonce, code_verifier, redirect_uri, expires_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(stateHash, browserHash, provider, nonce, codeVerifier || null, redirectUri, expiresAt, timestamp);
+}
+
+function consumeOAuthFlow({ stateHash, browserHash, provider }) {
+  return withTransaction(() => {
+    const flow = db.prepare(`SELECT state_hash AS stateHash, browser_hash AS browserHash, provider, nonce,
+        code_verifier AS codeVerifier, redirect_uri AS redirectUri, expires_at AS expiresAt
+      FROM oauth_flows WHERE state_hash = ?`).get(stateHash);
+    db.prepare("DELETE FROM oauth_flows WHERE state_hash = ?").run(stateHash);
+    if (!flow || flow.provider !== provider || flow.browserHash !== browserHash || flow.expiresAt <= now()) return null;
+    return flow;
+  });
+}
+
+function findOAuthIdentity(provider, subject) {
+  return db.prepare("SELECT user_id AS userId FROM oauth_identities WHERE provider = ? AND provider_subject = ?")
+    .get(provider, subject) || null;
+}
+
+function linkOAuthIdentity({ provider, subject, userId }) {
+  withTransaction(() => {
+    db.prepare(`INSERT OR IGNORE INTO oauth_identities (provider, provider_subject, user_id, created_at)
+      VALUES (?, ?, ?, ?)`)
+      .run(provider, subject, userId, now());
+    const identity = findOAuthIdentity(provider, subject);
+    if (!identity || identity.userId !== userId) throw Object.assign(new Error("This sign-in identity is already linked to another account."), { statusCode: 409 });
+  });
+}
+
+function resolveOAuthAccount({ provider, subject, email, displayName, passwordHash, id, workspaceId, workspaceName, countryCode, currencyCode }) {
+  withTransaction(() => {
+    const identity = findOAuthIdentity(provider, subject);
+    if (identity) return;
+
+    const existingUser = db.prepare("SELECT id, is_demo AS isDemo FROM users WHERE email = ? COLLATE NOCASE").get(email);
+    if (existingUser?.isDemo) {
+      throw Object.assign(new Error("This email is reserved for the shared demo. Use a different account."), { statusCode: 409 });
+    }
+
+    let userId = existingUser?.id;
+    if (!existingUser) {
+      userId = id;
+      const timestamp = now();
+      const isFirstWorkspace = db.prepare("SELECT COUNT(*) AS count FROM users WHERE is_demo = 0").get().count === 0;
+      db.prepare(`INSERT INTO users (id, email, display_name, password_hash, password_auth_enabled, created_at, updated_at)
+        VALUES (?, ?, ?, ?, 0, ?, ?)`)
+        .run(userId, email, displayName, passwordHash, timestamp, timestamp);
+      db.prepare(`INSERT INTO workspaces (id, name, country_code, currency_code, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)`)
+        .run(workspaceId, workspaceName, countryCode, currencyCode, timestamp, timestamp);
+      db.prepare(`INSERT INTO workspace_members (workspace_id, user_id, role, created_at)
+        VALUES (?, ?, 'owner', ?)`).run(workspaceId, userId, timestamp);
+      if (isFirstWorkspace) {
+        db.prepare("UPDATE community_needs SET workspace_id = ? WHERE workspace_id IS NULL").run(workspaceId);
+        db.prepare(`UPDATE agent_runs SET workspace_id = COALESCE(
+          (SELECT workspace_id FROM community_needs WHERE community_needs.id = agent_runs.need_id), ?)
+          WHERE workspace_id IS NULL`).run(workspaceId);
+        db.prepare("UPDATE orders SET workspace_id = ? WHERE workspace_id IS NULL").run(workspaceId);
+      }
+    }
+
+    db.prepare(`INSERT INTO oauth_identities (provider, provider_subject, user_id, created_at)
+      VALUES (?, ?, ?, ?)`).run(provider, subject, userId, now());
+  });
+
+  const identity = findOAuthIdentity(provider, subject);
+  return identity ? getAccount(identity.userId) : null;
+}
+
+function authAttemptCount(keyHash, since) {
+  db.prepare("DELETE FROM auth_attempts WHERE attempted_at < ?").run(new Date(Date.now() - 86400000).toISOString());
+  return db.prepare("SELECT COUNT(*) AS count FROM auth_attempts WHERE key_hash = ? AND attempted_at > ?").get(keyHash, since).count;
+}
+
+function recordAuthAttempt(keyHash) {
+  db.prepare("INSERT INTO auth_attempts (key_hash, attempted_at) VALUES (?, ?)").run(keyHash, now());
+}
+
+function createSupportTicket({ id, userId, workspaceId, email, category, subject, message }) {
+  db.prepare(`INSERT INTO support_tickets
+    (id, user_id, workspace_id, email, category, subject, message, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, userId || null, workspaceId || null, email, category, subject, message, now());
+  return { id, status: "open" };
+}
+
+function listSupportTickets(workspaceId) {
+  return db.prepare(`SELECT id, category, subject, message, status, created_at AS createdAt
+    FROM support_tickets WHERE workspace_id = ? ORDER BY created_at DESC LIMIT 50`).all(workspaceId);
+}
+
+function seed() {
+  const timestamp = now();
+  withTransaction(() => {
+    db.prepare("INSERT OR IGNORE INTO schema_migrations (version, name, applied_at) VALUES (1, 'initial-relational-schema', ?)").run(timestamp);
+    db.prepare("INSERT OR IGNORE INTO schema_migrations (version, name, applied_at) VALUES (2, 'community-request-workflow', ?)").run(timestamp);
+    db.prepare("INSERT OR IGNORE INTO schema_migrations (version, name, applied_at) VALUES (4, 'agent-run-source-fallback', ?)").run(timestamp);
+    const insertNeed = db.prepare(`INSERT OR IGNORE INTO community_needs
+      (id, title, category, location, summary, suggested_prompt, default_budget_cents, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`);
+    for (const need of needs) insertNeed.run(need.id, need.title, need.category, need.location, need.summary, need.suggestedPrompt, need.defaultBudgetCents, timestamp);
+    db.prepare(`UPDATE community_needs SET suggested_prompt = ?
+      WHERE id = ? AND suggested_prompt = ?`)
+      .run(needs[0].suggestedPrompt, needs[0].id, "Build a balanced pantry starter kit for a family of four. Keep it under $40 and avoid peanuts.");
+
+    const insertProduct = db.prepare(`INSERT OR IGNORE INTO catalog_products
+      (id, sku, name, description, category, unit_label, unit_price_cents, stock_on_hand, icon_key, tags_json, allergens_json, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
+    for (const product of products) {
+      insertProduct.run(product.id, product.sku, product.name, product.description, product.category, product.unitLabel, product.unitPriceCents, product.stockOnHand, product.iconKey, JSON.stringify(product.tags), JSON.stringify(product.allergens), timestamp);
+    }
+    const starterStatusMigration = db.prepare("SELECT version FROM schema_migrations WHERE version = 3").get();
+    if (!starterStatusMigration) {
+      db.prepare("UPDATE community_needs SET workflow_status = 'review' WHERE id IN ('pantry-quezon-city', 'school-la-paz', 'study-kumasi')").run();
+      db.prepare("INSERT INTO schema_migrations (version, name, applied_at) VALUES (3, 'starter-requests-require-review', ?)").run(timestamp);
+    }
+    const starterEventExists = db.prepare("SELECT 1 FROM community_request_events WHERE need_id = ? LIMIT 1");
+    for (const need of needs) {
+      if (!starterEventExists.get(need.id)) recordNeedEvent(need.id, "request.created", { status: "review", starter: true });
+    }
+  });
+}
+
+function parseProduct(row) {
+  return {
+    id: row.id,
+    sku: row.sku,
+    name: row.name,
+    description: row.description,
+    category: row.category,
+    unitLabel: row.unit_label,
+    unitPriceCents: row.unit_price_cents,
+    availableStock: row.stock_on_hand - row.stock_reserved,
+    iconKey: row.icon_key,
+    tags: JSON.parse(row.tags_json),
+    allergens: JSON.parse(row.allergens_json)
+  };
+}
+
+function listNeeds(workspaceId) {
+  return db.prepare("SELECT * FROM community_needs WHERE workspace_id = ? ORDER BY category, title").all(workspaceId).map((row) => ({
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    location: row.location,
+    summary: row.summary,
+    suggestedPrompt: row.suggested_prompt,
+    defaultBudgetCents: row.default_budget_cents,
+    status: row.workflow_status
+  }));
+}
+
+function getNeed(id, workspaceId) {
+  const row = db.prepare("SELECT * FROM community_needs WHERE id = ? AND workspace_id = ?").get(id, workspaceId);
+  if (!row) return null;
+  return {
+    id: row.id,
+    title: row.title,
+    category: row.category,
+    location: row.location,
+    summary: row.summary,
+    suggestedPrompt: row.suggested_prompt,
+    defaultBudgetCents: row.default_budget_cents,
+    status: row.workflow_status
+  };
+}
+
+function recordNeedEvent(needId, eventType, details = {}) {
+  db.prepare(`INSERT INTO community_request_events
+    (id, need_id, event_type, actor_label, details_json, created_at)
+    VALUES (?, ?, ?, ?, ?, ?)`)
+    .run(cryptoRandomId(), needId, eventType, "Workspace operator", JSON.stringify(details), now());
+}
+
+function createNeed({ id, workspaceId, title, category, location, summary, suggestedPrompt, defaultBudgetCents }) {
+  const timestamp = now();
+  withTransaction(() => {
+    db.prepare(`INSERT INTO community_needs
+      (id, workspace_id, title, category, location, summary, suggested_prompt, default_budget_cents, workflow_status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'review', ?)`)
+      .run(id, workspaceId, title, category, location, summary, suggestedPrompt, defaultBudgetCents, timestamp);
+    recordNeedEvent(id, "request.created", { status: "review" });
+  });
+  return getNeed(id, workspaceId);
+}
+
+function setNeedStatus(needId, status, workspaceId) {
+  const transitions = {
+    review: new Set(["ready", "closed"]),
+    ready: new Set(["review", "closed"]),
+    closed: new Set(["review", "ready"])
+  };
+  return withTransaction(() => {
+    const current = getNeed(needId, workspaceId);
+    if (!current) throw Object.assign(new Error("That request could not be found."), { statusCode: 404 });
+    if (current.status === status) return current;
+    if (!transitions[current.status]?.has(status)) throw Object.assign(new Error("That request cannot move to this status."), { statusCode: 409 });
+    db.prepare("UPDATE community_needs SET workflow_status = ? WHERE id = ? AND workspace_id = ?").run(status, needId, workspaceId);
+    recordNeedEvent(needId, "request.status-changed", { from: current.status, to: status });
+    return getNeed(needId, workspaceId);
+  });
+}
+
+function listNeedEvents(needId, workspaceId) {
+  return db.prepare(`SELECT event_type AS type, actor_label AS actor, details_json AS details, created_at AS createdAt
+    FROM community_request_events WHERE need_id = ? AND EXISTS (
+      SELECT 1 FROM community_needs n WHERE n.id = community_request_events.need_id AND n.workspace_id = ?
+    ) ORDER BY created_at DESC LIMIT 30`).all(needId, workspaceId)
+    .map((row) => ({ ...row, details: JSON.parse(row.details) }));
+}
+
+function listProducts({ activeOnly = true } = {}) {
+  const query = activeOnly
+    ? "SELECT * FROM catalog_products WHERE active = 1 ORDER BY category, name"
+    : "SELECT * FROM catalog_products ORDER BY category, name";
+  return db.prepare(query).all().map(parseProduct);
+}
+
+function getProductsByIds(ids) {
+  const uniqueIds = [...new Set(ids)];
+  if (!uniqueIds.length) return [];
+  const placeholders = uniqueIds.map(() => "?").join(", ");
+  return db.prepare(`SELECT * FROM catalog_products WHERE active = 1 AND id IN (${placeholders})`).all(...uniqueIds).map(parseProduct);
+}
+
+function insertAgentRun({ id, needId, workspaceId, source, intent, budgetCents, constraints, plan }) {
+  db.prepare(`INSERT INTO agent_runs (id, need_id, workspace_id, source, intent, budget_cents, constraints_json, plan_json, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`)
+    .run(id, needId, workspaceId, source, intent, budgetCents, JSON.stringify(constraints), JSON.stringify(plan), now());
+}
+
+function recordAudit(orderId, eventType, details = {}) {
+  db.prepare("INSERT INTO audit_events (id, order_id, event_type, details_json, created_at) VALUES (?, ?, ?, ?, ?)")
+    .run(cryptoRandomId(), orderId, eventType, JSON.stringify(details), now());
+}
+
+function cryptoRandomId() {
+  return crypto.randomUUID();
+}
+
+function normalizeSelection(items) {
+  if (!Array.isArray(items) || items.length < 1 || items.length > 12) throw Object.assign(new Error("Choose between 1 and 12 kit items."), { statusCode: 400 });
+  const merged = new Map();
+  for (const entry of items) {
+    if (!entry || typeof entry.productId !== "string" || !Number.isInteger(Number(entry.quantity))) throw Object.assign(new Error("Every item needs a valid catalog product and whole-number quantity."), { statusCode: 400 });
+    const quantity = Number(entry.quantity);
+    if (quantity < 1 || quantity > 20) throw Object.assign(new Error("Kit quantities must be between 1 and 20."), { statusCode: 400 });
+    merged.set(entry.productId, (merged.get(entry.productId) || 0) + quantity);
+  }
+  return [...merged].map(([productId, quantity]) => ({ productId, quantity }));
+}
+
+function orderItems(orderId) {
+  return db.prepare(`SELECT id, product_id AS productId, sku_snapshot AS sku, name_snapshot AS name,
+      unit_label_snapshot AS unitLabel, unit_price_cents AS unitPriceCents, quantity,
+      line_total_cents AS lineTotalCents, reason
+    FROM order_items WHERE order_id = ? ORDER BY rowid`).all(orderId);
+}
+
+function getOrderById(orderId, workspaceId) {
+  const row = workspaceId
+    ? db.prepare("SELECT * FROM orders WHERE id = ? AND workspace_id = ?").get(orderId, workspaceId)
+    : db.prepare("SELECT * FROM orders WHERE id = ?").get(orderId);
+  if (!row) return null;
+  return formatOrder(row);
+}
+
+function getOrderByIdempotencyKey(key, workspaceId) {
+  const row = db.prepare("SELECT * FROM orders WHERE idempotency_key = ? AND workspace_id = ?").get(key, workspaceId);
+  return row ? formatOrder(row) : null;
+}
+
+function formatOrder(row) {
+  return {
+    id: row.id,
+    needId: row.need_id,
+    needTitle: row.need_title_snapshot,
+    needLocation: row.need_location_snapshot,
+    intent: row.intent,
+    budgetCents: row.budget_cents,
+    subtotalCents: row.subtotal_cents,
+    constraints: JSON.parse(row.constraints_json),
+    currency: row.pay_currency_code || row.currency,
+    fxRate: row.fx_rate,
+    fxRateDate: row.fx_rate_date,
+    status: row.status,
+    paypalOrderId: row.paypal_order_id,
+    paypalCaptureId: row.paypal_capture_id,
+    paypalCreateRequestId: row.paypal_create_request_id,
+    paypalCaptureRequestId: row.paypal_capture_request_id,
+    idempotencyKey: row.idempotency_key,
+    requestFingerprint: row.request_fingerprint,
+    errorMessage: row.error_message,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    capturedAt: row.captured_at,
+    items: orderItems(row.id)
+  };
+}
+
+function validateAndSnapshotItems(items, budgetCents, constraints = { diet: "none", avoidAllergens: [] }) {
+  const selection = normalizeSelection(items);
+  const catalog = getProductsByIds(selection.map((item) => item.productId));
+  if (catalog.length !== selection.length) throw Object.assign(new Error("One or more selected products are no longer available."), { statusCode: 409 });
+  const catalogById = new Map(catalog.map((item) => [item.id, item]));
+  let subtotalCents = 0;
+  const snapshots = selection.map(({ productId, quantity }) => {
+    const product = catalogById.get(productId);
+    if (product.availableStock < quantity) throw Object.assign(new Error(`${product.name} has only ${product.availableStock} available. Update your kit and try again.`), { statusCode: 409 });
+    if (product.allergens.some((allergen) => constraints.avoidAllergens.includes(allergen))) throw Object.assign(new Error(`${product.name} conflicts with an allergen restriction. Remove it from the kit.`), { statusCode: 400 });
+    if (constraints.diet === "vegetarian" && product.tags.includes("meat")) throw Object.assign(new Error(`${product.name} conflicts with the vegetarian preference.`), { statusCode: 400 });
+    if (constraints.diet === "vegan" && product.tags.includes("animal-derived")) throw Object.assign(new Error(`${product.name} conflicts with the vegan preference.`), { statusCode: 400 });
+    const lineTotalCents = product.unitPriceCents * quantity;
+    subtotalCents += lineTotalCents;
+    const source = items.find((item) => item.productId === productId);
+    return { ...product, quantity, lineTotalCents, reason: typeof source?.reason === "string" ? source.reason.slice(0, 180) : "" };
+  });
+  if (subtotalCents <= 0 || subtotalCents > budgetCents) throw Object.assign(new Error("The edited kit exceeds your budget. Remove an item or lower a quantity."), { statusCode: 400 });
+  return { snapshots, subtotalCents };
+}
+
+function createOrder({ id, workspaceId, needId, intent, budgetCents, agentRunId, idempotencyKey, items, status,
+  currency = "USD", fxRate = 1, fxRateDate = "", minorDigits = 2,
+  constraints = { diet: "none", avoidAllergens: [] } }) {
+  const need = getNeed(needId, workspaceId);
+  if (!need) throw Object.assign(new Error("Choose a current community need before building a kit."), { statusCode: 400 });
+  if (need.status !== "ready") throw Object.assign(new Error("This request is not ready for procurement. Move it to Ready in the request desk first."), { statusCode: 409 });
+  if (agentRunId) {
+    const agentRun = db.prepare("SELECT need_id FROM agent_runs WHERE id = ? AND workspace_id = ?").get(agentRunId, workspaceId);
+    if (!agentRun || agentRun.need_id !== need.id) throw Object.assign(new Error("Rebuild this kit before checking out."), { statusCode: 400 });
+  }
+  const selection = normalizeSelection(items).sort((a, b) => a.productId.localeCompare(b.productId));
+  const fingerprintInput = JSON.stringify({
+    needId: need.id,
+    intent: intent.slice(0, 600),
+    budgetCents,
+    currency,
+    fxRate,
+    constraints,
+    items: selection.map(({ productId, quantity }) => ({ productId, quantity, reason: items.find((item) => item.productId === productId)?.reason || "" }))
+  });
+  const requestFingerprint = crypto.createHash("sha256").update(fingerprintInput).digest("hex");
+  const ensureSameRequest = (existing) => {
+    if (existing.requestFingerprint !== requestFingerprint) throw Object.assign(new Error("This checkout key was already used for a different kit. Rebuild the kit to start a new checkout."), { statusCode: 409 });
     return existing;
   };
   const orderIdempotencyKey = idempotencyKey ? `${workspaceId}:${idempotencyKey}` : `${workspaceId}:${cryptoRandomId()}`;

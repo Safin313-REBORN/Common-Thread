@@ -10,11 +10,11 @@ Community organizers often track requests, purchasing decisions, and receipts ac
 
 Gemini can propose products from the available catalog, but it cannot invent a product or price, approve a request, or start a payment. Organizers review and edit each line. The server validates the catalog items, stock, restrictions, and total. When configured, PayPal Checkout and Orders v2 complete a sandbox purchase after the buyer approves it. The request, order snapshot, payment status, and activity record stay together.
 
-CommonThread runs locally with Node.js and SQLite. The public repository includes setup instructions, a read-only judge account, and an MIT license. Gemini and PayPal sandbox credentials are optional for the basic walkthrough and are never included in the repository. Without provider credentials, the app labels its local AI fallback and saves only no-charge local order records. The starter catalog is illustrative; this prototype does not send real payments, distribute aid, or fulfill purchases.
+CommonThread runs locally with Node.js and SQLite; hosted services can use PostgreSQL through `DATABASE_URL`. The public repository includes setup instructions, a read-only judge account, and an MIT license. Gemini and PayPal sandbox credentials are optional for the basic walkthrough and are never included in the repository. Without provider credentials, the app labels its local AI fallback and saves only no-charge local order records. The starter catalog is illustrative; this prototype does not send real payments, distribute aid, or fulfill purchases.
 
-**Technology:** Node.js, SQLite, Gemini Interactions API, PayPal JavaScript Checkout, PayPal Orders v2 sandbox.
+**Technology:** Node.js, SQLite, PostgreSQL, Gemini Interactions API, PayPal JavaScript Checkout, PayPal Orders v2 sandbox.
 
-The current build runs locally with an illustrative catalog, local SQLite records, optional Gemini planning, and optional PayPal sandbox checkout. Sandbox transactions do not move real money or fulfill orders.
+The current build runs locally with an illustrative catalog and SQLite records, optional Gemini planning, and optional PayPal sandbox checkout. Hosted deployments can persist records in PostgreSQL. Sandbox transactions do not move real money or fulfill orders.
 
 ## Why this is useful
 
@@ -51,7 +51,7 @@ The system includes password-based accounts and workspace-scoped request/payment
 
 - **PayPal developer platform:** Implemented through PayPal JavaScript Checkout and server-side Orders v2 sandbox create/capture. This local environment has no sandbox client ID or secret, so checkout currently saves no-charge local records until configured.
 - **AI:** Gemini Interactions is implemented for catalog-constrained planning and workspace-aware support. A live Gemini-generated plan and support reply were verified locally; when the primary model returned a temporary high-demand response, the configured fallback model succeeded. The public repository does not include the private API key, so configure `GEMINI_API_KEY` for judge runs.
-- **Working prototype:** The SQLite app runs on Node.js 22.5+ and supports accounts, request review, plan editing, local order records, contact tickets, and CSV export. Full Gemini and PayPal sandbox flows need their respective keys.
+- **Working prototype:** The app runs on Node.js 22.5+ with SQLite locally or PostgreSQL when hosted, and supports accounts, request review, plan editing, local order records, contact tickets, and CSV export. Full Gemini and PayPal sandbox flows need their respective keys.
 - **Documentation:** Setup, data flow, product scope, research notes, and a walkthrough are documented. Optional sponsor tools are not currently used.
 
 The complete project source and MIT license are published in the public [Common-Thread GitHub repository](https://github.com/Safin313-REBORN/Common-Thread). [JUDGE_GUIDE.md](JUDGE_GUIDE.md) gives the setup, walkthrough, provider configuration, and known limits. No public YouTube demo has been recorded, and this project has not been entered on Devpost. Before submitting, add a publicly visible video under three minutes, provide the repository and testing instructions, and complete Devpost's required fields. Review the [official rules](https://paypalaihackathon.devpost.com/rules), including eligibility, project ownership, and submission conditions, before entering.
