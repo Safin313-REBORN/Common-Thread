@@ -62,3 +62,14 @@ PayPal captures in this project are sandbox transactions using test funds. With 
 This is not a production banking, charity disbursement, or fulfillment system. The starter catalog and requests are illustrative. There are no connected suppliers, verified requesters, recipient payouts, shipments, refunds, production PayPal payments, or email notifications. Currency conversion uses a daily reference rate and may differ from PayPal's final rate and fees. Use only sample data during evaluation.
 
 For the data model and security notes, see [ARCHITECTURE.md](ARCHITECTURE.md). For the full submission summary and walkthrough script, see [SUBMISSION.md](SUBMISSION.md).
+
+## Optional Render deployment
+
+Render can host the app as a Node.js web service. The project pins Node.js `24.21.0` with `.node-version` and reads Render's assigned `PORT`.
+
+1. Create a **Web Service** from this repository's `main` branch. Use `npm install` as the build command and `npm start` as the start command.
+2. Attach a persistent disk mounted at `/var/data`.
+3. Add `HOST=0.0.0.0`, `DATABASE_PATH=/var/data/commonthread.sqlite`, and `SESSION_COOKIE_SECURE=true` in the service's environment settings. Render sets `PORT` automatically.
+4. Set `/api/health` as the health-check path. Add `GEMINI_API_KEY` and PayPal sandbox credentials only if you have them; add them as private environment variables, never to the repository.
+
+The SQLite file must live under the mounted disk. Without a persistent disk, the service may start but account, request, and order data can disappear on restart or redeploy. The Render free web-service plan does not support persistent disks. For a temporary free preview, omit the `DATABASE_PATH` override so SQLite uses the app's default `data` directory; add the paid persistent disk before relying on saved data.
